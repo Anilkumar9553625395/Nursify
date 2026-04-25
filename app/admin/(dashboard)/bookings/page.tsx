@@ -43,7 +43,7 @@ export default function AdminBookingsPage() {
     const matchSearch = !q ||
       b.patientName.toLowerCase().includes(q) ||
       b.nurseName.toLowerCase().includes(q) ||
-      b.patientEmail.toLowerCase().includes(q)
+      b.requesterEmail.toLowerCase().includes(q)
     return matchStatus && matchSearch
   })
 
@@ -110,7 +110,7 @@ export default function AdminBookingsPage() {
                   </div>
 
                   {/* Meta */}
-                  <p className="text-xs text-gray-400 mb-2">{b.patientEmail} · {b.patientPhone}</p>
+                  <p className="text-xs text-gray-400 mb-2">{b.requesterEmail} · {b.patientContact || b.requesterPhone}</p>
                   <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                     <span className="flex items-center gap-1.5">
                       <Calendar size={13} className="text-teal-500" />

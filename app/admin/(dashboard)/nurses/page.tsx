@@ -24,6 +24,7 @@ export default function AdminNursesPage() {
   const [search, setSearch]   = useState('')
   const [comments, setComments] = useState<Record<string, string>>({})
   const [updating, setUpdating] = useState<string | null>(null)
+  const [loading, setLoading]   = useState(true)
 
   useEffect(() => {
     fetch('/api/admin/nurses')

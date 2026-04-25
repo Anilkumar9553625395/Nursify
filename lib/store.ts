@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 
 export type Availability = 'Full Time' | 'Part Time' | 'Flexible' | 'Weekends Only'
 export type BookingType = 'hourly' | 'daily'
-export type BookingStatus = 'pending' | 'assigned' | 'completed'
+export type BookingStatus = 'pending' | 'assigned' | 'completed' | 'confirmed' | 'cancelled'
 export type NurseStatus = 'pending' | 'approved' | 'rejected'
 
 export interface Review {
