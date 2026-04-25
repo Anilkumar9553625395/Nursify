@@ -1,6 +1,6 @@
 import { getAllNurses, getAllBookings } from '@/lib/store'
 import Link from 'next/link'
-import { Users, Calendar, CheckCircle, Clock, TrendingUp, AlertCircle } from 'lucide-react'
+import { Users, Calendar, CheckCircle, Clock, TrendingUp, AlertCircle, Activity, Shield } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,56 +13,81 @@ export default async function AdminDashboard() {
     approvedNurses: nurses.filter(n => n.status === 'approved').length,
     pendingNurses:  nurses.filter(n => n.status === 'pending').length,
     totalBookings:  bookings.length,
-    confirmed:      bookings.filter(b => b.status === 'confirmed').length,
+    assigned:       bookings.filter(b => b.status === 'assigned' || b.status === 'confirmed').length,
     revenue:        bookings.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.totalCost, 0),
   }
 
   const recentBookings  = [...bookings].reverse().slice(0, 5)
   const pendingNursesList = nurses.filter(n => n.status === 'pending')
 
+  const statCards = [
+    { icon: Users,       label: 'Total Nurses',    value: stats.totalNurses,    gradient: 'from-emerald-400 to-emerald-600', bg: 'bg-emerald-50' },
+    { icon: CheckCircle, label: 'Approved Nurses',  value: stats.approvedNurses, gradient: 'from-green-400 to-green-600',     bg: 'bg-green-50' },
+    { icon: AlertCircle, label: 'Pending Approval', value: stats.pendingNurses,  gradient: 'from-amber-400 to-amber-600',    bg: 'bg-amber-50' },
+    { icon: Calendar,    label: 'Total Bookings',   value: stats.totalBookings,  gradient: 'from-sapphire-400 to-sapphire-600', bg: 'bg-sapphire-50' },
+    { icon: Clock,       label: 'Assigned',         value: stats.assigned,       gradient: 'from-emerald-400 to-emerald-600', bg: 'bg-emerald-50' },
+    { icon: TrendingUp,  label: 'Total Revenue',    value: `$${stats.revenue.toLocaleString()}`, gradient: 'from-navy-700 to-navy-900', bg: 'bg-navy-50' },
+  ]
+
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-1">Dashboard</h1>
-      <p className="text-gray-500 mb-8">Welcome back, Admin</p>
+    <div className="p-8 bg-medical-bg min-h-screen">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-extrabold text-navy-900 tracking-tight flex items-center gap-2">
+            <Activity size={24} className="text-emerald-500" /> Dashboard
+          </h1>
+          <p className="text-gray-500 mt-1 text-sm">Welcome back, Admin. Here&apos;s your overview.</p>
+        </div>
+        <div className="hidden sm:flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100">
+          <Shield size={13} className="text-emerald-600" />
+          <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Verified Platform</span>
+        </div>
+      </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {[
-          { icon: Users,       label: 'Total Nurses',    value: stats.totalNurses,    color: 'teal' },
-          { icon: CheckCircle, label: 'Approved Nurses', value: stats.approvedNurses, color: 'green' },
-          { icon: AlertCircle, label: 'Pending Approval',value: stats.pendingNurses,  color: 'yellow' },
-          { icon: Calendar,    label: 'Total Bookings',  value: stats.totalBookings,  color: 'teal' },
-          { icon: Clock,       label: 'Confirmed',       value: stats.confirmed,      color: 'green' },
-          { icon: TrendingUp,  label: 'Total Revenue',   value: `$${stats.revenue.toLocaleString()}`, color: 'teal' },
-        ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-            <div className={`w-10 h-10 rounded-xl bg-${color}-50 flex items-center justify-center mb-3`}>
-              <Icon size={19} className={`text-${color}-600`} />
+        {statCards.map(({ icon: Icon, label, value, gradient, bg }) => (
+          <div key={label} className="card p-5 group hover:shadow-card-hover transition-all duration-300">
+            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform`}>
+              <Icon size={20} className="text-white" />
             </div>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
-            <p className="text-sm text-gray-500 mt-0.5">{label}</p>
+            <p className="text-2xl font-extrabold text-navy-900">{value}</p>
+            <p className="text-sm text-gray-500 mt-0.5 font-medium">{label}</p>
           </div>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Pending nurses */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-gray-900">Pending Nurse Approvals</h2>
-            <Link href="/admin/nurses" className="text-sm text-teal-600 hover:underline">View all</Link>
+        <div className="card p-6 shadow-card">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-bold text-navy-900 flex items-center gap-2">
+              <AlertCircle size={16} className="text-amber-500" /> Pending Approvals
+            </h2>
+            <Link href="/admin/nurses" className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold hover:underline">View all</Link>
           </div>
           {pendingNursesList.length === 0 ? (
-            <p className="text-sm text-gray-400 py-4 text-center">No pending approvals</p>
+            <div className="text-center py-8">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-emerald-50 flex items-center justify-center">
+                <CheckCircle size={20} className="text-emerald-400" />
+              </div>
+              <p className="text-sm text-gray-400 font-medium">All caught up! No pending approvals.</p>
+            </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {pendingNursesList.map(n => (
-                <div key={n.id} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">{n.name}</p>
-                    <p className="text-xs text-gray-400">{n.specializations.slice(0,2).join(', ')}</p>
+                <div key={n.id} className="flex items-center justify-between py-3 px-3 rounded-xl hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
+                      <span className="text-amber-700 font-bold text-xs">{n.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-navy-900 text-sm">{n.name}</p>
+                      <p className="text-xs text-gray-400">{n.specializations.slice(0,2).join(', ')}</p>
+                    </div>
                   </div>
-                  <Link href="/admin/nurses" className="text-xs text-teal-600 font-medium hover:underline">Review</Link>
+                  <Link href="/admin/nurses" className="text-xs text-emerald-600 font-bold hover:underline bg-emerald-50 px-3 py-1 rounded-lg">Review</Link>
                 </div>
               ))}
             </div>
@@ -70,26 +95,38 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Recent bookings */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-gray-900">Recent Bookings</h2>
-            <Link href="/admin/bookings" className="text-sm text-teal-600 hover:underline">View all</Link>
+        <div className="card p-6 shadow-card">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-bold text-navy-900 flex items-center gap-2">
+              <Calendar size={16} className="text-sapphire-500" /> Recent Care Requests
+            </h2>
+            <Link href="/admin/bookings" className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold hover:underline">View all</Link>
           </div>
           {recentBookings.length === 0 ? (
-            <p className="text-sm text-gray-400 py-4 text-center">No bookings yet</p>
+            <div className="text-center py-8">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-gray-100 flex items-center justify-center">
+                <Calendar size={20} className="text-gray-300" />
+              </div>
+              <p className="text-sm text-gray-400 font-medium">No bookings yet</p>
+            </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {recentBookings.map(b => (
-                <div key={b.id} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">{b.patientName}</p>
-                    <p className="text-xs text-gray-400">→ {b.nurseName} · ${b.totalCost}</p>
+                <div key={b.id} className="flex items-center justify-between py-3 px-3 rounded-xl hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sapphire-100 to-sapphire-200 flex items-center justify-center">
+                      <span className="text-sapphire-700 font-bold text-xs">{b.patientName.charAt(0)}</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-navy-900 text-sm">{b.patientName}</p>
+                      <p className="text-xs text-gray-400">→ {b.nurseName} · ${b.totalCost}</p>
+                    </div>
                   </div>
-                  <span className={`badge text-xs ${
-                    b.status === 'confirmed' ? 'badge-teal' :
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
+                    b.status === 'assigned' || b.status === 'confirmed' ? 'badge-emerald' :
                     b.status === 'completed' ? 'badge-green' :
                     b.status === 'cancelled' ? 'badge-red' : 'badge-yellow'
-                  }`}>{b.status}</span>
+                  }`}>{b.status === 'confirmed' ? 'assigned' : b.status}</span>
                 </div>
               ))}
             </div>

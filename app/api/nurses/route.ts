@@ -19,8 +19,8 @@ export async function POST(req: Request) {
     regNumber, regState,
   } = body
 
-  if (!name || !email || !phone || !experience || !hourlyRate || !specializations?.length || !location || !regNumber || !regState) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  if (!name || !email || !phone || !photo || !experience || !hourlyRate || !specializations?.length || !location || !regNumber || !regState) {
+    return NextResponse.json({ error: 'Missing required fields. Profile photo is mandatory.' }, { status: 400 })
   }
 
   try {

@@ -2,7 +2,7 @@ import { supabase } from './supabase'
 
 export type Availability = 'Full Time' | 'Part Time' | 'Flexible' | 'Weekends Only'
 export type BookingType = 'hourly' | 'daily'
-export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled'
+export type BookingStatus = 'pending' | 'assigned' | 'completed'
 export type NurseStatus = 'pending' | 'approved' | 'rejected'
 
 export interface Review {
@@ -19,7 +19,7 @@ export interface Nurse {
   name: string
   email: string
   phone: string
-  photo?: string
+  photo: string
   experience: number
   hourlyRate: number
   dailyRate: number
@@ -35,6 +35,7 @@ export interface Nurse {
   rating: number
   reviewCount: number
   reviews?: Review[]
+  adminComments?: string
   createdAt: string
 }
 
@@ -42,9 +43,34 @@ export interface Booking {
   id: string
   nurseId: string
   nurseName: string
+  // Requester info
+  requesterName: string
+  requesterEmail: string
+  requesterPhone: string
+  relationToPatient: string
+  // Patient info
   patientName: string
-  patientEmail: string
-  patientPhone: string
+  patientAge: number
+  patientGender: string
+  patientAddress: string
+  patientLocation: string
+  patientContact: string
+  emergencyContact: string
+  emergencyRelation: string
+  // Clinical info
+  diagnosis: string
+  clinicalNotes: string
+  recentAdmissions: boolean
+  treatmentPlan: string
+  servicesNeeded: string[]
+  // Decision capacity & consent
+  canMakeDecisions: boolean
+  understandsLimitations?: boolean
+  consentSignedBy: 'patient' | 'relative'
+  relativeRelation?: string
+  relativeAadhar?: string
+  noConsentReason?: string
+  // Booking details
   bookingType: BookingType
   hours?: number
   days?: number
@@ -55,6 +81,9 @@ export interface Booking {
   notes?: string
   createdAt: string
 }
+
+// Legacy alias to avoid breaking existing pages that import the old field names
+export type { Booking as CareRequest }
 
 // ── Nurse helpers ─────────────────────────────────────────────────────────────
 
@@ -120,15 +149,29 @@ export async function addNurse(nurse: Omit<Nurse, 'id' | 'createdAt' | 'status' 
   return mapNurse(data)
 }
 
-export async function updateNurseStatus(id: string, status: NurseStatus): Promise<Nurse | null> {
+export async function updateNurseStatus(id: string, status: NurseStatus, adminComments?: string): Promise<Nurse | null> {
   const { data, error } = await supabase
     .from('nurses')
-    .update({ status })
+    .update({ 
+      status,
+      admin_comments: adminComments
+    })
     .eq('id', id)
     .select()
     .single()
 
   if (error) return null
+  return mapNurse(data)
+}
+
+export async function getNurseByEmail(email: string): Promise<Nurse | null> {
+  const { data, error } = await supabase
+    .from('nurses')
+    .select('*, reviews(*)')
+    .eq('email', email)
+    .single()
+
+  if (error || !data) return null
   return mapNurse(data)
 }
 
@@ -181,32 +224,73 @@ export async function getAllBookings(): Promise<Booking[]> {
 }
 
 export async function getBookingsByEmail(email: string): Promise<Booking[]> {
+  // Try patient_email first (existing DB column)
   const { data, error } = await supabase
     .from('bookings')
     .select('*')
     .eq('patient_email', email)
     .order('created_at', { ascending: false })
 
-  if (error) throw error
+  if (!error && data && data.length > 0) {
+    return data.map(mapBooking)
+  }
+
+  // Fallback: try requester_email (new column, may not exist yet)
+  const { data: data2 } = await supabase
+    .from('bookings')
+    .select('*')
+    .eq('requester_email', email)
+    .order('created_at', { ascending: false })
+
+  if (data2 && data2.length > 0) {
+    return data2.map(mapBooking)
+  }
+
+  // Return whatever we got (could be empty)
   return (data || []).map(mapBooking)
 }
 
 export async function addBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'status'>): Promise<Booking> {
+  // Store extended clinical data as JSON in notes for backward compatibility
+  // (the DB may not have all the new columns yet)
+  const extendedData = JSON.stringify({
+    relationToPatient: booking.relationToPatient,
+    patientAge: booking.patientAge,
+    patientGender: booking.patientGender,
+    patientAddress: booking.patientAddress,
+    patientLocation: booking.patientLocation,
+    patientContact: booking.patientContact,
+    emergencyContact: booking.emergencyContact,
+    emergencyRelation: booking.emergencyRelation,
+    diagnosis: booking.diagnosis,
+    clinicalNotes: booking.clinicalNotes,
+    recentAdmissions: booking.recentAdmissions,
+    treatmentPlan: booking.treatmentPlan,
+    servicesNeeded: booking.servicesNeeded,
+    canMakeDecisions: booking.canMakeDecisions,
+    understandsLimitations: booking.understandsLimitations,
+    consentSignedBy: booking.consentSignedBy,
+    relativeRelation: booking.relativeRelation,
+    relativeAadhar: booking.relativeAadhar,
+    noConsentReason: booking.noConsentReason,
+    additionalNotes: booking.notes,
+  })
+
   const { data, error } = await supabase
     .from('bookings')
     .insert({
       nurse_id: booking.nurseId,
       nurse_name: booking.nurseName,
       patient_name: booking.patientName,
-      patient_email: booking.patientEmail,
-      patient_phone: booking.patientPhone,
+      patient_email: booking.requesterEmail,
+      patient_phone: booking.requesterPhone || '',
       booking_type: booking.bookingType,
       hours: booking.hours,
       days: booking.days,
       start_date: booking.startDate,
       end_date: booking.endDate,
       total_cost: booking.totalCost,
-      notes: booking.notes,
+      notes: extendedData,
       status: 'pending'
     })
     .select()
@@ -237,7 +321,7 @@ function mapNurse(row: any): Nurse {
     name: row.name,
     email: row.email,
     phone: row.phone,
-    photo: row.photo,
+    photo: row.photo || '',
     experience: row.experience,
     hourlyRate: row.hourly_rate,
     dailyRate: row.daily_rate,
@@ -253,6 +337,7 @@ function mapNurse(row: any): Nurse {
     rating: row.rating,
     reviewCount: row.review_count,
     reviews,
+    adminComments: row.admin_comments || '',
     createdAt: row.created_at,
   }
 }
@@ -269,13 +354,39 @@ function mapReview(row: any): Review {
 }
 
 function mapBooking(row: any): Booking {
+  // Try to parse extended data from notes (JSON)
+  let ext: any = {}
+  if (row.notes) {
+    try { ext = JSON.parse(row.notes) } catch { ext = {} }
+  }
+
   return {
     id: row.id,
     nurseId: row.nurse_id,
     nurseName: row.nurse_name,
-    patientName: row.patient_name,
-    patientEmail: row.patient_email,
-    patientPhone: row.patient_phone,
+    requesterName: row.requester_name || row.patient_name || '',
+    requesterEmail: row.requester_email || row.patient_email || '',
+    requesterPhone: row.requester_phone || row.patient_phone || '',
+    relationToPatient: row.relation_to_patient || ext.relationToPatient || 'Self',
+    patientName: row.patient_name || '',
+    patientAge: row.patient_age || ext.patientAge || 0,
+    patientGender: row.patient_gender || ext.patientGender || '',
+    patientAddress: row.patient_address || ext.patientAddress || '',
+    patientLocation: row.patient_location || ext.patientLocation || '',
+    patientContact: row.patient_contact || ext.patientContact || '',
+    emergencyContact: row.emergency_contact || ext.emergencyContact || '',
+    emergencyRelation: row.emergency_relation || ext.emergencyRelation || '',
+    diagnosis: row.diagnosis || ext.diagnosis || '',
+    clinicalNotes: row.clinical_notes || ext.clinicalNotes || '',
+    recentAdmissions: row.recent_admissions ?? ext.recentAdmissions ?? false,
+    treatmentPlan: row.treatment_plan || ext.treatmentPlan || '',
+    servicesNeeded: row.services_needed || ext.servicesNeeded || [],
+    canMakeDecisions: row.can_make_decisions ?? ext.canMakeDecisions ?? true,
+    understandsLimitations: row.understands_limitations ?? ext.understandsLimitations,
+    consentSignedBy: row.consent_signed_by || ext.consentSignedBy || 'patient',
+    relativeRelation: row.relative_relation || ext.relativeRelation,
+    relativeAadhar: row.relative_aadhar || ext.relativeAadhar,
+    noConsentReason: row.no_consent_reason || ext.noConsentReason,
     bookingType: row.booking_type,
     hours: row.hours,
     days: row.days,
@@ -283,7 +394,7 @@ function mapBooking(row: any): Booking {
     endDate: row.end_date,
     totalCost: row.total_cost,
     status: row.status,
-    notes: row.notes,
+    notes: ext.additionalNotes || (typeof row.notes === 'string' && !row.notes.startsWith('{') ? row.notes : ''),
     createdAt: row.created_at,
   }
 }

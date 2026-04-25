@@ -7,13 +7,13 @@ export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const { status } = await req.json() as { status: NurseStatus }
+  const { status, adminComments } = await req.json() as { status: NurseStatus, adminComments?: string }
 
-  if (!['approved', 'rejected', 'pending'].includes(status)) {
+  if (status && !['approved', 'rejected', 'pending'].includes(status)) {
     return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
   }
 
-  const updated = await updateNurseStatus(params.id, status)
+  const updated = await updateNurseStatus(params.id, status, adminComments)
   if (!updated) return NextResponse.json({ error: 'Nurse not found' }, { status: 404 })
 
   return NextResponse.json(updated)

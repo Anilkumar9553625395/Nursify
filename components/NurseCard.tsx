@@ -1,68 +1,94 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Star, Clock, User, DollarSign } from 'lucide-react'
+import { Star, Clock, User, DollarSign, Shield, MapPin, Heart } from 'lucide-react'
 import type { Nurse } from '@/lib/store'
 
 export default function NurseCard({ nurse }: { nurse: Nurse }) {
   return (
-    <div className="card hover:shadow-md transition-shadow duration-200 flex flex-col">
-      {/* Photo */}
-      <div className="relative h-52 bg-teal-50">
-        {nurse.photo ? (
-          <Image
-            src={nurse.photo}
-            alt={nurse.name}
-            fill
-            className="object-cover"
-            unoptimized
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-5xl font-bold text-teal-300">
-              {nurse.name.charAt(0)}
+    <Link href={`/nurse/${nurse.id}`} className="block group">
+      <div className="rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-card-hover bg-white border border-gray-100">
+        {/* Photo — Airbnb style: large rounded image */}
+        <div className="relative aspect-[4/3] bg-gradient-to-br from-emerald-50 to-sapphire-50 overflow-hidden">
+          {nurse.photo ? (
+            <Image
+              src={nurse.photo}
+              alt={nurse.name}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-700"
+              unoptimized
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-medical">
+                <span className="text-3xl font-extrabold text-white">
+                  {nurse.name.charAt(0)}
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Wishlist heart — Airbnb style */}
+          <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:scale-110 transition-transform" onClick={(e) => e.preventDefault()}>
+            <Heart size={15} className="text-gray-600" />
+          </button>
+
+          {/* Verified badge */}
+          <div className="absolute bottom-3 left-3">
+            <div className="bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1 flex items-center gap-1 shadow-sm">
+              <Shield size={11} className="text-emerald-600" />
+              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Verified</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Info — Airbnb style: clean, minimal */}
+        <div className="p-4">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h3 className="font-bold text-base text-navy-900 group-hover:text-emerald-600 transition-colors">{nurse.name}</h3>
+              {nurse.location && (
+                <p className="text-sm text-gray-500 flex items-center gap-1 mt-0.5">
+                  <MapPin size={12} /> {nurse.location}
+                </p>
+              )}
+            </div>
+            {nurse.rating > 0 && (
+              <div className="flex items-center gap-1 text-sm font-semibold text-navy-900 flex-shrink-0">
+                <Star size={13} className="text-navy-900" fill="currentColor" />
+                {nurse.rating}
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3 mt-2 text-sm text-gray-500">
+            <span className="flex items-center gap-1">
+              <User size={12} /> {nurse.experience}yr exp
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock size={12} /> {nurse.availability}
             </span>
           </div>
-        )}
-        {/* Rating badge */}
-        {nurse.rating > 0 && (
-          <div className="absolute top-3 right-3 bg-white rounded-full px-2.5 py-1 flex items-center gap-1 shadow text-sm font-semibold">
-            <Star size={12} className="text-yellow-400" fill="#facc15" />
-            {nurse.rating}
+
+          {/* Specializations */}
+          <div className="flex flex-wrap gap-1 mt-2.5">
+            {nurse.specializations.slice(0, 2).map((s) => (
+              <span key={s} className="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded-md">{s}</span>
+            ))}
+            {nurse.specializations.length > 2 && (
+              <span className="text-xs text-gray-400">+{nurse.specializations.length - 2} more</span>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Info */}
-      <div className="p-5 flex flex-col flex-1">
-        <h3 className="font-bold text-lg text-gray-900">{nurse.name}</h3>
-
-        <div className="flex gap-4 mt-1 text-sm text-gray-500">
-          <span className="flex items-center gap-1">
-            <User size={13} /> {nurse.experience}yr exp
-          </span>
-          <span className="flex items-center gap-1">
-            <Clock size={13} /> {nurse.availability}
-          </span>
-        </div>
-
-        {/* Specializations */}
-        <div className="flex flex-wrap gap-1.5 mt-3">
-          {nurse.specializations.slice(0, 3).map((s) => (
-            <span key={s} className="badge-teal">{s}</span>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 mt-4">
-          <div className="flex items-center gap-1 text-teal-700 font-bold">
-            <DollarSign size={15} />
-            ${nurse.hourlyRate}/hr
+          {/* Price — Airbnb style */}
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <span className="font-bold text-navy-900">${nurse.hourlyRate}</span>
+            <span className="text-sm text-gray-500"> / hour</span>
+            {nurse.dailyRate > 0 && (
+              <span className="text-sm text-gray-400 ml-2">· ${nurse.dailyRate} / day</span>
+            )}
           </div>
-          <Link href={`/nurse/${nurse.id}`} className="btn-primary text-sm px-4 py-2">
-            View Profile
-          </Link>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }

@@ -22,24 +22,33 @@ export default function AdminNursesPage() {
   const [nurses, setNurses]   = useState<Nurse[]>([])
   const [tab, setTab]         = useState<NurseStatus | 'all'>('all')
   const [search, setSearch]   = useState('')
-  const [loading, setLoading] = useState(true)
+  const [comments, setComments] = useState<Record<string, string>>({})
+  const [updating, setUpdating] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/admin/nurses')
       .then(r => r.json())
-      .then(data => { setNurses(data); setLoading(false) })
+      .then(data => { 
+        setNurses(data)
+        const initialComments: Record<string, string> = {}
+        data.forEach((n: Nurse) => { initialComments[n.id] = n.adminComments || '' })
+        setComments(initialComments)
+        setLoading(false) 
+      })
   }, [])
 
   async function updateStatus(id: string, status: NurseStatus) {
+    setUpdating(id)
     const res = await fetch(`/api/admin/nurses/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({ status, adminComments: comments[id] }),
     })
     if (res.ok) {
       const updated = await res.json()
       setNurses(prev => prev.map(n => n.id === id ? updated : n))
     }
+    setUpdating(null)
   }
 
   const filtered = nurses.filter(n => {
@@ -91,7 +100,7 @@ export default function AdminNursesPage() {
         <div className="space-y-4">
           {filtered.map(nurse => (
             <div key={nurse.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-              <div className="flex flex-col sm:flex-row gap-5 items-start">
+              <div className="flex flex-col lg:flex-row gap-6 items-start">
                 {/* Avatar */}
                 <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-teal-50 flex-shrink-0">
                   {nurse.photo ? (
@@ -117,9 +126,20 @@ export default function AdminNursesPage() {
                     )}
                   </div>
                   <p className="text-sm text-gray-500">{nurse.email} · {nurse.phone}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">{nurse.qualifications}</p>
+                  
+                  {/* Admin Comments Section */}
+                  <div className="mt-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Internal Notes / Feedback to Nurse</label>
+                    <textarea
+                      className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all placeholder:text-gray-300"
+                      placeholder="Add suggestions or rejection reasons..."
+                      value={comments[nurse.id] || ''}
+                      onChange={e => setComments(prev => ({ ...prev, [nurse.id]: e.target.value }))}
+                      rows={2}
+                    />
+                  </div>
 
-                  <div className="flex flex-wrap gap-1.5 mt-2">
+                  <div className="flex flex-wrap gap-1.5 mt-4">
                     <span className="badge-gray font-mono">{nurse.regNumber}</span>
                     <span className="badge-gray">{nurse.regState}</span>
                     <span className="badge-gray">{nurse.experience}yr exp</span>
@@ -131,47 +151,69 @@ export default function AdminNursesPage() {
                   </div>
 
                   {nurse.bio && (
-                    <p className="text-sm text-gray-500 mt-2 line-clamp-2">{nurse.bio}</p>
+                    <p className="text-sm text-gray-500 mt-3 line-clamp-2">{nurse.bio}</p>
                   )}
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col gap-2 flex-shrink-0">
+                <div className="flex flex-col sm:flex-row lg:flex-col gap-2 flex-shrink-0 w-full lg:w-36">
                   {nurse.status === 'pending' && (
                     <>
                       <button
                         onClick={() => updateStatus(nurse.id, 'approved')}
-                        className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-all"
+                        disabled={updating === nurse.id}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50"
                       >
                         <CheckCircle size={15} /> Approve
                       </button>
                       <button
                         onClick={() => updateStatus(nurse.id, 'rejected')}
-                        className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-all"
+                        disabled={updating === nurse.id}
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50"
                       >
                         <XCircle size={15} /> Reject
                       </button>
                     </>
                   )}
                   {nurse.status === 'approved' && (
-                    <button
-                      onClick={() => updateStatus(nurse.id, 'rejected')}
-                      className="flex items-center gap-2 px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-all"
-                    >
-                      <XCircle size={15} /> Suspend
-                    </button>
+                    <>
+                      <button
+                        onClick={() => updateStatus(nurse.id, 'approved')}
+                        disabled={updating === nurse.id}
+                        className="flex items-center justify-center gap-2 px-4 py-2 border border-teal-200 text-teal-600 hover:bg-teal-50 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                      >
+                        Save Notes
+                      </button>
+                      <button
+                        onClick={() => updateStatus(nurse.id, 'rejected')}
+                        disabled={updating === nurse.id}
+                        className="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                      >
+                        <XCircle size={15} /> Suspend
+                      </button>
+                    </>
                   )}
                   {nurse.status === 'rejected' && (
-                    <button
-                      onClick={() => updateStatus(nurse.id, 'approved')}
-                      className="flex items-center gap-2 px-4 py-2 border border-teal-200 text-teal-600 hover:bg-teal-50 rounded-lg text-sm font-medium transition-all"
-                    >
-                      <CheckCircle size={15} /> Re-approve
-                    </button>
+                    <>
+                      <button
+                        onClick={() => updateStatus(nurse.id, 'rejected')}
+                        disabled={updating === nurse.id}
+                        className="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                      >
+                        Save Notes
+                      </button>
+                      <button
+                        onClick={() => updateStatus(nurse.id, 'approved')}
+                        disabled={updating === nurse.id}
+                        className="flex items-center justify-center gap-2 px-4 py-2 border border-teal-200 text-teal-600 hover:bg-teal-50 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                      >
+                        <CheckCircle size={15} /> Re-approve
+                      </button>
+                    </>
                   )}
-                  <p className="text-xs text-gray-400 text-center">
-                    <Clock size={11} className="inline mr-1" />
-                    {nurse.createdAt}
+                  <p className="text-[10px] font-bold text-gray-400 text-center mt-2 uppercase tracking-widest">
+                    <Clock size={11} className="inline mr-1 -mt-0.5" />
+                    Joined {new Date(nurse.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
