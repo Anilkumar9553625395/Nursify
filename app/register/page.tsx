@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -8,9 +8,9 @@ import { CheckCircle, Plus, X, MapPin, Shield, UserPlus, FileText, Stethoscope, 
 import { LOCATIONS, SPECIALIZATIONS } from '@/lib/constants'
 
 const STEP_LABELS = [
-  { num: 1, label: 'Personal Info',        icon: UserPlus },
-  { num: 2, label: 'Professional Details',  icon: Stethoscope },
-  { num: 3, label: 'Bio & Review',          icon: FileText },
+  { num: 1, label: 'Personal Info', icon: UserPlus },
+  { num: 2, label: 'Professional Details', icon: Stethoscope },
+  { num: 3, label: 'Bio & Review', icon: FileText },
 ]
 
 export default function RegisterPage() {
@@ -20,29 +20,29 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
 
   // Form fields
-  const [name, setName]             = useState('')
-  const [email, setEmail]           = useState('')
-  const [phone, setPhone]           = useState('')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
   const [experience, setExperience] = useState('')
   const [hourlyRate, setHourlyRate] = useState('')
-  const [dailyRate, setDailyRate]   = useState('')
-  const [availability, setAvail]    = useState('Flexible')
-  const [specs, setSpecs]           = useState<string[]>([])
-  const [languages, setLanguages]   = useState<string[]>(['English'])
-  const [langInput, setLangInput]   = useState('')
-  const [qualifications, setQuals]  = useState('')
-  const [bio, setBio]               = useState('')
-  const [photo, setPhoto]           = useState('')
-  const [location, setLocation]     = useState(LOCATIONS[0])
-  const [otherSpec, setOtherSpec]   = useState('')
-  const [regNumber, setRegNumber]   = useState('')
-  const [regState, setRegState]     = useState('')
+  const [dailyRate, setDailyRate] = useState('')
+  const [availability, setAvail] = useState('Flexible')
+  const [specs, setSpecs] = useState<string[]>([])
+  const [languages, setLanguages] = useState<string[]>(['English'])
+  const [langInput, setLangInput] = useState('')
+  const [qualifications, setQuals] = useState('')
+  const [bio, setBio] = useState('')
+  const [photo, setPhoto] = useState('')
+  const [location, setLocation] = useState(LOCATIONS[0])
+  const [otherSpec, setOtherSpec] = useState('')
+  const [regNumber, setRegNumber] = useState('')
+  const [regState, setRegState] = useState('')
 
   // Photo upload state
-  const [uploading, setUploading]   = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const [previewUrl, setPreviewUrl] = useState('')
-  const [useUrl, setUseUrl]         = useState(false)
+  const [useUrl, setUseUrl] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function RegisterPage() {
       .then(data => {
         if (data.user) {
           if (data.user.role !== 'nurse') {
-             setError('Only users with the "Nurse" role can register as a nurse.')
+            setError('Only users with the "Nurse" role can register as a nurse.')
           }
           setEmail(data.user.email)
         }
@@ -127,7 +127,7 @@ export default function RegisterPage() {
         experience: +experience,
         hourlyRate: +hourlyRate,
         dailyRate: +dailyRate,
-        availability, 
+        availability,
         specializations: specs.includes('Others') && otherSpec ? [...specs.filter(s => s !== 'Others'), otherSpec] : specs,
         languages, qualifications, bio,
         location,
@@ -189,30 +189,26 @@ export default function RegisterPage() {
                   onClick={() => {
                     if (s.num < step) setStep(s.num)
                   }}
-                  className={`flex items-center gap-2.5 transition-all duration-300 ${
-                    s.num < step ? 'cursor-pointer' : 'cursor-default'
-                  }`}
+                  className={`flex items-center gap-2.5 transition-all duration-300 ${s.num < step ? 'cursor-pointer' : 'cursor-default'
+                    }`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                    step > s.num
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${step > s.num
                       ? 'bg-emerald-500 text-white shadow-medical'
                       : step === s.num
                         ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-medical'
                         : 'bg-gray-100 text-gray-400'
-                  }`}>
+                    }`}>
                     {step > s.num ? <CheckCircle size={18} /> : <s.icon size={18} />}
                   </div>
                   <div className="hidden sm:block">
-                    <p className={`text-xs font-semibold uppercase tracking-wider ${
-                      step >= s.num ? 'text-emerald-600' : 'text-gray-400'
-                    }`}>Step {s.num}</p>
+                    <p className={`text-xs font-semibold uppercase tracking-wider ${step >= s.num ? 'text-emerald-600' : 'text-gray-400'
+                      }`}>Step {s.num}</p>
                     <p className={`text-sm font-bold ${step >= s.num ? 'text-navy-900' : 'text-gray-400'}`}>{s.label}</p>
                   </div>
                 </button>
                 {i < 2 && (
-                  <div className={`flex-1 h-0.5 mx-3 rounded-full transition-all duration-500 ${
-                    step > s.num ? 'bg-emerald-500' : 'bg-gray-200'
-                  }`} />
+                  <div className={`flex-1 h-0.5 mx-3 rounded-full transition-all duration-500 ${step > s.num ? 'bg-emerald-500' : 'bg-gray-200'
+                    }`} />
                 )}
               </div>
             ))}
@@ -223,19 +219,17 @@ export default function RegisterPage() {
             {step === 1 && <>
               <div>
                 <label className="label">Profile Photo * <span className="text-red-500 text-xs">(mandatory)</span></label>
-                
+
                 {/* Toggle between upload and URL */}
                 <div className="flex gap-2 mb-3">
                   <button type="button" onClick={() => setUseUrl(false)}
-                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
-                      !useUrl ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}>
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${!useUrl ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      }`}>
                     <Upload size={12} className="inline mr-1" /> Upload Photo
                   </button>
                   <button type="button" onClick={() => setUseUrl(true)}
-                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
-                      useUrl ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                    }`}>
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${useUrl ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      }`}>
                     Paste URL
                   </button>
                 </div>
@@ -247,11 +241,10 @@ export default function RegisterPage() {
                       onClick={() => fileInputRef.current?.click()}
                       onDragOver={e => e.preventDefault()}
                       onDrop={handleDrop}
-                      className={`flex-1 border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 ${
-                        uploading ? 'border-emerald-400 bg-emerald-50' :
-                        photo && !uploadError ? 'border-emerald-400 bg-emerald-50/50' :
-                        'border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30'
-                      }`}
+                      className={`flex-1 border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 ${uploading ? 'border-emerald-400 bg-emerald-50' :
+                          photo && !uploadError ? 'border-emerald-400 bg-emerald-50/50' :
+                            'border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30'
+                        }`}
                     >
                       <input
                         ref={fileInputRef}
@@ -364,7 +357,7 @@ export default function RegisterPage() {
               <div>
                 <label className="label">Availability</label>
                 <select value={availability} onChange={e => setAvail(e.target.value)} className="input">
-                  {['Flexible','Full Time','Part Time','Weekends Only'].map(o => <option key={o}>{o}</option>)}
+                  {['Flexible', 'Full Time', 'Part Time', 'Weekends Only'].map(o => <option key={o}>{o}</option>)}
                 </select>
               </div>
               <div>
@@ -372,15 +365,14 @@ export default function RegisterPage() {
                 <div className="flex flex-wrap gap-2 mt-2">
                   {SPECIALIZATIONS.map((s: string) => (
                     <button key={s} type="button" onClick={() => toggleSpec(s)}
-                      className={`px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${
-                        specs.includes(s) ? 'bg-emerald-500 text-white border-emerald-500 shadow-medical' : 'border-gray-200 text-gray-600 hover:border-emerald-400 hover:text-emerald-600'
-                      }`}>{s}</button>
+                      className={`px-3.5 py-2 rounded-xl text-sm font-semibold border transition-all duration-300 ${specs.includes(s) ? 'bg-emerald-500 text-white border-emerald-500 shadow-medical' : 'border-gray-200 text-gray-600 hover:border-emerald-400 hover:text-emerald-600'
+                        }`}>{s}</button>
                   ))}
                 </div>
                 {specs.includes('Others') && (
                   <div className="mt-4">
                     <label className="label text-emerald-700">Please specify your specialization *</label>
-                    <input value={otherSpec} onChange={e => setOtherSpec(e.target.value)} 
+                    <input value={otherSpec} onChange={e => setOtherSpec(e.target.value)}
                       className="input border-emerald-200 focus:ring-emerald-500" placeholder="e.g. Parkinson's Specialized Care" required />
                   </div>
                 )}
