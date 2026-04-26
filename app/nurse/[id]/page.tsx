@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import {
   Star, Clock, User, Globe, Award, ChevronLeft,
-  Phone, Mail, DollarSign, Calendar, CheckCircle, Send,
+  Phone, Mail, IndianRupee, Calendar, CheckCircle, Send,
   Shield, MapPin, Heart, Activity, AlertTriangle,
   FileText, Stethoscope, ClipboardList, UserCheck, Lock
 } from 'lucide-react'
@@ -228,7 +228,7 @@ export default function NurseProfilePage() {
                 <div className="flex flex-wrap gap-4 mt-3 text-sm text-gray-300">
                   <span className="flex items-center gap-1.5"><User size={14} className="text-emerald-400" /> {nurse.experience} yrs experience</span>
                   <span className="flex items-center gap-1.5"><Clock size={14} className="text-sapphire-400" /> {nurse.availability}</span>
-                  <span className="flex items-center gap-1.5"><DollarSign size={14} className="text-emerald-400" /> ${nurse.hourlyRate}/hr · ${nurse.dailyRate}/day</span>
+                  <span className="flex items-center gap-1.5"><IndianRupee size={14} className="text-emerald-400" /> ₹{nurse.hourlyRate}/hr · ₹{nurse.dailyRate}/day</span>
                   {nurse.location && <span className="flex items-center gap-1.5"><MapPin size={14} className="text-amber-400" /> {nurse.location}</span>}
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-4">
@@ -710,9 +710,9 @@ export default function NurseProfilePage() {
                       {/* Price */}
                       <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 rounded-xl p-5 flex justify-between items-center border border-emerald-200">
                         <span className="text-sm text-emerald-700 font-medium">
-                          {bookType === 'hourly' ? `${hours} hr × $${nurse.hourlyRate}` : `${days} day × $${nurse.dailyRate}`}
+                          {bookType === 'hourly' ? `${hours} hr × ₹${nurse.hourlyRate}` : `${days} day × ₹${nurse.dailyRate}`}
                         </span>
-                        <span className="text-2xl font-extrabold text-emerald-800">${cost}</span>
+                        <span className="text-2xl font-extrabold text-emerald-800">₹{cost}</span>
                       </div>
 
                       {/* Emergency disclaimer */}

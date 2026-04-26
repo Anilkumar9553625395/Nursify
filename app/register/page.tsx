@@ -346,11 +346,11 @@ export default function RegisterPage() {
             {step === 2 && <>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="label">Hourly Rate ($) *</label>
+                  <label className="label">Hourly Rate (₹) *</label>
                   <input type="number" min={10} value={hourlyRate} onChange={e => setHourlyRate(e.target.value)} className="input" placeholder="35" required />
                 </div>
                 <div>
-                  <label className="label">Daily Rate ($)</label>
+                  <label className="label">Daily Rate (₹)</label>
                   <input type="number" min={50} value={dailyRate} onChange={e => setDailyRate(e.target.value)} className="input" placeholder="250" />
                 </div>
               </div>

@@ -81,10 +81,10 @@ export default function NurseCard({ nurse }: { nurse: Nurse }) {
 
           {/* Price — Airbnb style */}
           <div className="mt-3 pt-3 border-t border-gray-100">
-            <span className="font-bold text-navy-900">${nurse.hourlyRate}</span>
+            <span className="font-bold text-navy-900">₹{nurse.hourlyRate}</span>
             <span className="text-sm text-gray-500"> / hour</span>
             {nurse.dailyRate > 0 && (
-              <span className="text-sm text-gray-400 ml-2">· ${nurse.dailyRate} / day</span>
+              <span className="text-sm text-gray-400 ml-2">· ₹{nurse.dailyRate} / day</span>
             )}
           </div>
         </div>
