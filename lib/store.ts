@@ -223,6 +223,17 @@ export async function getAllBookings(): Promise<Booking[]> {
   return (data || []).map(mapBooking)
 }
 
+export async function getBookingsByNurseId(nurseId: string): Promise<Booking[]> {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*')
+    .eq('nurse_id', nurseId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data || []).map(mapBooking)
+}
+
 export async function getBookingsByEmail(email: string): Promise<Booking[]> {
   // Try patient_email first (existing DB column)
   const { data, error } = await supabase

@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/auth'
-import { getNurseByEmail } from '@/lib/store'
+import { getNurseByEmail, getBookingsByNurseId } from '@/lib/store'
 import { redirect } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -11,11 +11,39 @@ import {
   FileText, 
   ShieldCheck,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  Activity,
+  Calendar,
+  IndianRupee,
+  MapPin
 } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
+
+const STATUS_STYLE: Record<string, string> = {
+  pending:   'badge-yellow',
+  assigned:  'badge-emerald',
+  completed: 'badge-green',
+  confirmed: 'badge-emerald',
+  cancelled: 'badge-red',
+}
+
+const STATUS_DOT: Record<string, string> = {
+  pending:   'bg-amber-400',
+  assigned:  'bg-emerald-500',
+  completed: 'bg-green-500',
+  confirmed: 'bg-emerald-500',
+  cancelled: 'bg-red-400',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: 'Pending Review',
+  assigned: 'Nurse Assigned',
+  completed: 'Care Completed',
+  confirmed: 'Confirmed',
+  cancelled: 'Cancelled',
+}
 
 export default async function MyApplicationPage() {
   const user = getAuthUser()
@@ -29,6 +57,7 @@ export default async function MyApplicationPage() {
   }
 
   const nurse = await getNurseByEmail(user.email)
+  const bookings = nurse ? await getBookingsByNurseId(nurse.id) : []
 
   return (
     <div className="min-h-screen bg-medical-bg flex flex-col">
@@ -149,6 +178,84 @@ export default async function MyApplicationPage() {
                 <Link href="/help" className="text-xs font-black text-emerald-600 hover:underline uppercase tracking-widest">Need help? Contact Support</Link>
               </div>
             </div>
+
+            {/* Care Requests Section */}
+            {nurse.status === 'approved' && (
+              <div className="mt-12 pt-12 border-t border-gray-200">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                    <Activity size={20} strokeWidth={2.5} />
+                  </div>
+                  <h2 className="text-2xl font-extrabold text-navy-900 tracking-tight">Care Requests</h2>
+                </div>
+                
+                {bookings.length === 0 ? (
+                  <div className="card p-12 text-center shadow-glass border-dashed border-2 border-gray-200">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-400">
+                      <Calendar size={32} />
+                    </div>
+                    <p className="text-gray-500 font-medium">No care requests yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {bookings.map(b => (
+                      <div key={b.id} className="card p-6 shadow-sm border border-gray-100">
+                        <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
+                          <div>
+                            <h3 className="font-bold text-navy-900 text-lg">{b.patientName}</h3>
+                            <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5">
+                              <FileText size={11} /> Request #{b.id.slice(-6)}
+                            </p>
+                          </div>
+                          <span className={`${STATUS_STYLE[b.status] || 'badge-gray'} flex items-center gap-1.5`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[b.status] || 'bg-gray-400'}`} />
+                            {STATUS_LABELS[b.status] || b.status}
+                          </span>
+                        </div>
+
+                        <div className="grid sm:grid-cols-3 gap-3 text-sm">
+                          <div className="flex items-center gap-3 text-gray-600 bg-gray-50 rounded-xl p-3">
+                            <Calendar size={16} className="text-emerald-500 flex-shrink-0" />
+                            <div>
+                              <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Start Date</p>
+                              <p className="font-semibold text-navy-900">{b.startDate}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 text-gray-600 bg-gray-50 rounded-xl p-3">
+                            <Clock size={16} className="text-sapphire-500 flex-shrink-0" />
+                            <div>
+                              <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Duration</p>
+                              <p className="font-semibold text-navy-900">
+                                {b.bookingType === 'hourly' ? `${b.hours} hrs` : `${b.days} days`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 text-gray-600 bg-gray-50 rounded-xl p-3">
+                            <IndianRupee size={16} className="text-emerald-500 flex-shrink-0" />
+                            <div>
+                              <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Total Value</p>
+                              <p className="font-bold text-navy-900 text-lg">₹{b.totalCost}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {b.servicesNeeded && b.servicesNeeded.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-1.5">
+                            {b.servicesNeeded.map((s: string) => <span key={s} className="badge-emerald text-[10px]">{s}</span>)}
+                          </div>
+                        )}
+
+                        {b.patientLocation && (
+                          <p className="mt-3 text-xs text-gray-500 flex items-center gap-1.5">
+                            <MapPin size={11} className="text-emerald-500" /> {b.patientLocation}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </main>

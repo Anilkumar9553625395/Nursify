@@ -10,6 +10,7 @@ import { LogIn, Mail, Lock, User, Loader2, AlertCircle, Eye, EyeOff } from 'luci
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
+  const [loginType, setLoginType] = useState<'user' | 'admin'>('user')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -21,10 +22,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const endpoint = loginType === 'admin' ? '/api/admin/login' : '/api/auth/login'
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, password }),
+        body: JSON.stringify(loginType === 'admin' ? { email: identifier, password } : { identifier, password }),
       })
 
       const data = await res.json()
@@ -57,6 +59,25 @@ export default function LoginPage() {
           </div>
 
           <div className="card p-8 shadow-glass transition-all duration-300">
+            <div className="flex gap-2 p-1 bg-gray-100 rounded-xl mb-6">
+              <button
+                onClick={() => setLoginType('user')}
+                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                  loginType === 'user' ? 'bg-white text-navy-900 shadow-sm' : 'text-gray-500 hover:text-navy-900'
+                }`}
+              >
+                Patient / Nurse
+              </button>
+              <button
+                onClick={() => setLoginType('admin')}
+                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
+                  loginType === 'admin' ? 'bg-white text-navy-900 shadow-sm' : 'text-gray-500 hover:text-navy-900'
+                }`}
+              >
+                Admin
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 animate-pulse">
@@ -74,7 +95,7 @@ export default function LoginPage() {
                   <input
                     type="text"
                     className="input pl-11"
-                    placeholder="Enter your email or username"
+                    placeholder={loginType === 'admin' ? "Enter your admin email" : "Enter your email or username"}
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required
@@ -127,10 +148,6 @@ export default function LoginPage() {
                 </Link>
               </p>
             </div>
-          </div>
-          
-          <div className="mt-8 text-center text-xs text-gray-400">
-            <p>Admin? <Link href="/admin/login" className="hover:text-gray-600 underline">Login to Portal</Link></p>
           </div>
         </div>
       </main>

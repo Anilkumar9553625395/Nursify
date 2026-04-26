@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { CheckCircle, MapPin, Shield, User, Heart, Phone, AlertTriangle, FileText, UserCheck } from 'lucide-react'
@@ -21,8 +21,21 @@ export default function RegisterPatientPage() {
   // Step 1: Requester
   const [requesterName, setRequesterName] = useState('')
   const [requesterEmail, setRequesterEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [requesterPhone, setRequesterPhone] = useState('')
   const [relationToPatient, setRelation] = useState('Self')
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.user) {
+          setRequesterEmail(data.user.email)
+          setIsLoggedIn(true)
+        }
+      })
+  }, [])
 
   // Step 2: Patient
   const [patientName, setPatientName] = useState('')
@@ -50,6 +63,20 @@ export default function RegisterPatientPage() {
     if (servicesNeeded.length === 0) { setError('Please select at least one service needed.'); return }
     setError('')
     setSubmitting(true)
+
+    if (!isLoggedIn && password) {
+      const signupRes = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: requesterEmail, email: requesterEmail, password, role: 'patient' }),
+      })
+      if (!signupRes.ok) {
+        const d = await signupRes.json()
+        setError(d.message || 'Signup failed')
+        setSubmitting(false)
+        return
+      }
+    }
 
     // Store patient registration data (using the bookings API for now as a care request)
     try {
@@ -188,8 +215,14 @@ export default function RegisterPatientPage() {
                 </div>
                 <div>
                   <label className="label">Email *</label>
-                  <input type="email" value={requesterEmail} onChange={e => setRequesterEmail(e.target.value)} className="input" placeholder="you@example.com" required />
+                  <input type="email" value={requesterEmail} onChange={e => setRequesterEmail(e.target.value)} className="input" placeholder="you@example.com" required disabled={isLoggedIn} />
                 </div>
+                {!isLoggedIn && (
+                  <div className="sm:col-span-2">
+                    <label className="label">Password * (for login)</label>
+                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="input" placeholder="••••••••" required />
+                  </div>
+                )}
                 <div className="sm:col-span-2">
                   <label className="label">Phone *</label>
                   <input value={requesterPhone} onChange={e => setRequesterPhone(e.target.value)} className="input" placeholder="+91 98765 43210" required />
@@ -200,7 +233,7 @@ export default function RegisterPatientPage() {
 
               <div className="flex justify-end pt-2">
                 <button type="button" onClick={() => {
-                  if (!requesterName || !requesterEmail || !requesterPhone) { setError('Please fill in all required fields.'); return }
+                  if (!requesterName || !requesterEmail || (!isLoggedIn && !password) || !requesterPhone) { setError('Please fill in all required fields including password.'); return }
                   setError(''); setStep(2)
                 }} className="btn-primary">Continue →</button>
               </div>

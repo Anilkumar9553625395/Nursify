@@ -22,6 +22,8 @@ export default function RegisterPage() {
   // Form fields
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [phone, setPhone] = useState('')
   const [experience, setExperience] = useState('')
   const [hourlyRate, setHourlyRate] = useState('')
@@ -54,6 +56,7 @@ export default function RegisterPage() {
             setError('Only users with the "Nurse" role can register as a nurse.')
           }
           setEmail(data.user.email)
+          setIsLoggedIn(true)
         }
       })
   }, [])
@@ -119,6 +122,21 @@ export default function RegisterPage() {
     if (specs.length === 0) { setError('Please select at least one specialization.'); return }
     setError('')
     setSubmitting(true)
+
+    if (!isLoggedIn && password) {
+      const signupRes = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: email, email, password, role: 'nurse' }),
+      })
+      if (!signupRes.ok) {
+        const d = await signupRes.json()
+        setError(d.message || 'Signup failed')
+        setSubmitting(false)
+        return
+      }
+    }
+
     const res = await fetch('/api/nurses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -306,8 +324,14 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="label">Email *</label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input" placeholder="jane@email.com" required />
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="input" placeholder="jane@email.com" required disabled={isLoggedIn} />
                 </div>
+                {!isLoggedIn && (
+                  <div>
+                    <label className="label">Password * (for login)</label>
+                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="input" placeholder="••••••••" required />
+                  </div>
+                )}
                 <div>
                   <label className="label">Phone *</label>
                   <input value={phone} onChange={e => setPhone(e.target.value)} className="input" placeholder="+91 98765 43210" required />
@@ -335,7 +359,7 @@ export default function RegisterPage() {
               {error && <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-xl border border-red-100">{error}</p>}
               <div className="flex justify-end pt-2">
                 <button type="button" onClick={() => {
-                  if (!name || !email || !phone || !experience || !regNumber || !regState || !photo) setError('Please fill in all required fields marked with *, including profile photo.')
+                  if (!name || !email || (!isLoggedIn && !password) || !phone || !experience || !regNumber || !regState || !photo) setError('Please fill in all required fields marked with *, including profile photo and password.')
                   else { setError(''); setStep(2) }
                 }}
                   className="btn-primary">Next Step →</button>
