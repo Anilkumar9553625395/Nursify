@@ -39,6 +39,7 @@ export default function RegisterPage() {
   const [otherSpec, setOtherSpec] = useState('')
   const [regNumber, setRegNumber] = useState('')
   const [regState, setRegState] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   // Photo upload state
   const [uploading, setUploading] = useState(false)
@@ -443,10 +444,27 @@ export default function RegisterPage() {
                   className="input resize-none" placeholder="Tell patients about your experience, approach to care, and what makes you stand out…" required />
                 <p className="text-xs text-gray-400 mt-1.5">{bio.length}/500 characters</p>
               </div>
+              <div>
+                <label className="flex items-start gap-3 cursor-pointer p-4 bg-gray-50 rounded-xl border border-gray-100 hover:border-emerald-200 transition-colors">
+                  <div className="flex items-center h-5 mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                      required
+                    />
+                  </div>
+                  <div className="flex-1 text-sm text-gray-600">
+                    <span className="font-semibold text-navy-900">I agree to the Terms & Conditions</span>
+                    <p className="text-xs text-gray-500 mt-0.5">By checking this box, you agree to our platform terms, privacy policy, and confirm that all provided information is accurate.</p>
+                  </div>
+                </label>
+              </div>
               {error && <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-xl border border-red-100">{error}</p>}
               <div className="flex justify-between pt-2">
                 <button type="button" onClick={() => setStep(2)} className="btn-secondary">← Back</button>
-                <button type="submit" disabled={submitting || !qualifications || !bio} className="btn-primary">
+                <button type="submit" disabled={submitting || !qualifications || !bio || !termsAccepted} className="btn-primary">
                   {submitting ? (
                     <span className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

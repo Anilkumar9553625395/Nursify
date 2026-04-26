@@ -24,7 +24,6 @@ const SKILL_ICONS: Record<string, { icon: any; color: string }> = {
   'Basic Wound Dressing':                 { icon: Scissors,     color: 'from-amber-400 to-amber-600' },
   'Updating Family':                      { icon: Users,        color: 'from-emerald-500 to-emerald-700' },
   'Simple IV Infusion (Existing Line, Stable Patient)': { icon: Droplets, color: 'from-sapphire-500 to-sapphire-700' },
-  'IV Infusion (Non-Critical)':           { icon: Droplets,     color: 'from-navy-600 to-navy-800' },
   'IV Cannulation (Routine, Non-Difficult)': { icon: Syringe,   color: 'from-emerald-600 to-emerald-800' },
   'Urinary Catheter Care (Simple Cases)': { icon: ShieldCheck,  color: 'from-amber-500 to-amber-700' },
   'Tracheostomy Care':                    { icon: Wind,         color: 'from-red-400 to-red-600' },
@@ -32,12 +31,12 @@ const SKILL_ICONS: Record<string, { icon: any; color: string }> = {
   'Oxygen Therapy (Continuous/High Flow)':{ icon: Wind,         color: 'from-sapphire-400 to-sapphire-600' },
   'Complex Wound Care (Aseptic)':         { icon: Thermometer,  color: 'from-red-500 to-red-700' },
   'Complicated Post-Surgical Cases Care': { icon: Scissors,     color: 'from-navy-700 to-navy-900' },
-  'Aseptic Cannulations':                 { icon: ShieldCheck,  color: 'from-emerald-500 to-emerald-700' },
   'Physiotherapy':                        { icon: Activity,     color: 'from-purple-500 to-purple-700' },
   'Elder Care':                           { icon: Heart,        color: 'from-emerald-400 to-emerald-600' },
   'Pediatric Care':                       { icon: Baby,         color: 'from-pink-400 to-pink-600' },
   'Palliative Care':                      { icon: Heart,        color: 'from-amber-400 to-amber-600' },
   'Maternity Care':                       { icon: Baby,         color: 'from-pink-500 to-pink-700' },
+  'Others':                               { icon: Activity,     color: 'from-gray-400 to-gray-600' },
 }
 
 const services = CLINICAL_SKILLS.map(skill => ({
@@ -57,7 +56,6 @@ const progressStats = [
   { label: 'Home Care',           value: 95 },
   { label: 'Senior Care',         value: 92 },
   { label: 'Post-Surgery Care',   value: 88 },
-  { label: 'Health Consultation',  value: 90 },
 ]
 
 export default function HomePage() {
@@ -263,12 +261,12 @@ export default function HomePage() {
             </div>
 
             <div className="mt-10 flex items-center gap-5 flex-wrap">
-               <div className="bg-navy-900 text-white p-4 rounded-2xl flex items-center gap-4 shadow-glass-lg">
-                  <div className="w-11 h-11 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-medical">
-                     <PhoneIncoming size={20} className="text-white" />
+               <div className="bg-gray-50 border border-gray-100 text-navy-900 p-4 rounded-2xl flex items-center gap-4">
+                  <div className="w-11 h-11 bg-gray-200 rounded-xl flex items-center justify-center">
+                     <PhoneIncoming size={20} className="text-emerald-600" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Emergency Line</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Emergency Line</p>
                     <p className="font-bold text-lg tracking-tight">+91 95536 25395</p>
                   </div>
                </div>

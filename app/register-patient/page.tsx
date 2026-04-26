@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { CheckCircle, MapPin, Shield, User, Heart, Phone, AlertTriangle, FileText, UserCheck } from 'lucide-react'
+import { CheckCircle, MapPin, Shield, User, Heart, Phone, AlertTriangle, FileText, UserCheck, Upload, Loader2, X } from 'lucide-react'
 import { LOCATIONS, RELATIONS, SERVICES_NEEDED } from '@/lib/constants'
 
 const STEP_LABELS = [
@@ -53,6 +53,65 @@ export default function RegisterPatientPage() {
   const [diagnosis, setDiagnosis] = useState('')
   const [recentAdmissions, setRecentAdmissions] = useState(false)
   const [treatmentPlan, setTreatmentPlan] = useState('')
+  const [documentUrl, setDocumentUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState('')
+  const [isDragging, setIsDragging] = useState(false)
+  const [consentAccepted, setConsentAccepted] = useState(false)
+  const [patientConsentStatus, setPatientConsentStatus] = useState('direct')
+  const [unableReason, setUnableReason] = useState('')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const processFile = async (file: File) => {
+    setUploading(true)
+    setUploadError('')
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('bucket', 'Patient Documents')
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Upload failed')
+      }
+
+      const data = await res.json()
+      setDocumentUrl(data.url)
+    } catch (err: any) {
+      console.error('File upload error:', err)
+      setUploadError(err.message || 'Failed to upload document')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) processFile(file)
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) processFile(file)
+  }
 
   function toggleService(s: string) {
     setServicesNeeded(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
@@ -91,6 +150,7 @@ export default function RegisterPatientPage() {
           emergencyContact, emergencyRelation,
           careDescription, servicesNeeded, diagnosis,
           recentAdmissions, treatmentPlan,
+          documentUrl,
         }),
       })
 
@@ -374,6 +434,56 @@ export default function RegisterPatientPage() {
                 </div>
               </div>
 
+              {/* Document Upload */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-5">
+                <label className="label">Medical Documents / Prescriptions</label>
+                <p className="text-xs text-gray-500 mb-3">Upload any relevant medical records, prescriptions, or pictures (optional).</p>
+                
+                {documentUrl ? (
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200">
+                    <FileText size={20} className="text-emerald-500" />
+                    <a href={documentUrl} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm font-semibold text-emerald-600 hover:underline truncate">
+                      View Uploaded Document
+                    </a>
+                    <button type="button" onClick={() => setDocumentUrl('')} className="p-1 text-gray-400 hover:text-red-500 transition-colors">
+                      <X size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <div 
+                    className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${isDragging ? 'border-emerald-500 bg-emerald-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      onChange={handleFileUpload}
+                      className="hidden" 
+                      accept="image/jpeg,image/png,image/webp,application/pdf" 
+                    />
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+                      {uploading ? <Loader2 size={24} className="animate-spin" /> : <Upload size={24} />}
+                    </div>
+                    <p className="text-sm font-semibold text-navy-900 mb-1">
+                      {uploading ? 'Uploading...' : 'Drag and drop your file here'}
+                    </p>
+                    <p className="text-xs text-gray-500 mb-4">or click to browse from your device</p>
+                    
+                    <button 
+                      type="button" 
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold text-gray-700 hover:border-emerald-500 hover:text-emerald-600 transition-colors disabled:opacity-50"
+                    >
+                      Browse Files
+                    </button>
+                    {uploadError && <p className="text-xs text-red-500 mt-3">{uploadError}</p>}
+                  </div>
+                )}
+              </div>
+
               {/* Disclaimer */}
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <p className="text-sm text-amber-800 flex items-start gap-2">
@@ -382,11 +492,136 @@ export default function RegisterPatientPage() {
                 </p>
               </div>
 
+              {/* Patient Consent Form */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-inner">
+                <div className="bg-gray-50 border-b border-gray-200 p-4">
+                  <h3 className="font-bold text-navy-900 text-base">Patient Consent for Home Nursing Services</h3>
+                </div>
+                <div className="p-5 max-h-80 overflow-y-auto text-sm text-gray-700 space-y-5 custom-scrollbar">
+                  
+                  <div>
+                    <h4 className="font-bold text-navy-900 mb-1">1. Nature of Service</h4>
+                    <p>I understand that I am receiving home-based nursing care services arranged through this platform. These services are provided in a non-hospital setting.</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-navy-900 mb-1">2. Scope of Care</h4>
+                    <p className="mb-2">I understand that the nurse will:</p>
+                    <ul className="list-disc pl-5 space-y-1 mb-3">
+                      <li>Provide basic nursing care</li>
+                      <li>Assist with daily activities</li>
+                      <li>Administer medications only as prescribed by a doctor</li>
+                      <li>Monitor vital signs</li>
+                    </ul>
+                    <p className="mb-2">I understand that the nurse will NOT:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Diagnose medical conditions</li>
+                      <li>Prescribe or change medications</li>
+                      <li>Replace hospital-based care</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-navy-900 mb-1">3. Risks & Limitations</h4>
+                    <p className="mb-2">I acknowledge that home care has limitations, including but not limited to:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>Risk of falls or injury</li>
+                      <li>Delay in recognising medical deterioration</li>
+                      <li>Limited emergency support compared to a hospital setting</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-navy-900 mb-1">4. Emergency Situations</h4>
+                    <p className="mb-2">I understand that this service is NOT for emergency care. In case of symptoms such as:</p>
+                    <ul className="list-disc pl-5 space-y-1 mb-2">
+                      <li>Chest pain</li>
+                      <li>Difficulty breathing</li>
+                      <li>Sudden weakness or stroke symptoms</li>
+                      <li>Loss of consciousness</li>
+                    </ul>
+                    <p>I (or my family) will immediately contact emergency services or go to the nearest hospital.</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-navy-900 mb-1">5. Responsibility</h4>
+                    <p className="mb-2">I understand that:</p>
+                    <ul className="list-disc pl-5 space-y-1 mb-2">
+                      <li>The nurse is responsible for the care they provide</li>
+                      <li>The platform acts as a service coordinator/connector</li>
+                    </ul>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200">
+                    <h3 className="font-bold text-navy-900 text-base mb-3">Family/Caregiver Acknowledgment</h3>
+                    
+                    <div className="mb-4">
+                      <p className="font-semibold text-gray-900 mb-2">Relationship to Patient: <span className="font-normal text-emerald-600">{relationToPatient}</span></p>
+                      
+                      <div className="space-y-2 mt-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="consentStatus" 
+                            value="direct" 
+                            checked={patientConsentStatus === 'direct'} 
+                            onChange={() => setPatientConsentStatus('direct')}
+                            className="text-emerald-600 focus:ring-emerald-500"
+                          />
+                          <span>The patient has provided consent directly</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="radio" 
+                            name="consentStatus" 
+                            value="unable" 
+                            checked={patientConsentStatus === 'unable'} 
+                            onChange={() => setPatientConsentStatus('unable')}
+                            className="text-emerald-600 focus:ring-emerald-500"
+                          />
+                          <span>The patient is unable to provide consent</span>
+                        </label>
+                      </div>
+
+                      {patientConsentStatus === 'unable' && (
+                        <div className="mt-3">
+                          <input 
+                            type="text" 
+                            placeholder="Reason patient is unable to provide consent..."
+                            value={unableReason}
+                            onChange={(e) => setUnableReason(e.target.value)}
+                            className="input text-sm"
+                            required
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 border-t border-gray-200 p-4">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <div className="flex items-center h-5 mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={consentAccepted}
+                        onChange={(e) => setConsentAccepted(e.target.checked)}
+                        className="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500"
+                        required
+                      />
+                    </div>
+                    <div className="flex-1 text-sm text-gray-700 font-semibold">
+                      I have read, understood, and accept the Patient Consent and Acknowledgment terms above. I confirm all provided information is accurate.
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               {error && <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-xl border border-red-100">{error}</p>}
 
               <div className="flex justify-between pt-2">
                 <button type="button" onClick={() => setStep(2)} className="btn-secondary">← Back</button>
-                <button type="submit" disabled={submitting || servicesNeeded.length === 0 || !careDescription} className="btn-primary">
+                <button type="submit" disabled={submitting || servicesNeeded.length === 0 || !careDescription || !consentAccepted || (patientConsentStatus === 'unable' && !unableReason.trim())} className="btn-primary">
                   {submitting ? (
                     <span className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

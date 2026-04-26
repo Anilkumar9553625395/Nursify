@@ -34,7 +34,6 @@ export const CLINICAL_SKILLS = [
   'Basic Wound Dressing',
   'Updating Family',
   'Simple IV Infusion (Existing Line, Stable Patient)',
-  'IV Infusion (Non-Critical)',
   'IV Cannulation (Routine, Non-Difficult)',
   'Urinary Catheter Care (Simple Cases)',
   'Tracheostomy Care',
@@ -42,12 +41,12 @@ export const CLINICAL_SKILLS = [
   'Oxygen Therapy (Continuous/High Flow)',
   'Complex Wound Care (Aseptic)',
   'Complicated Post-Surgical Cases Care',
-  'Aseptic Cannulations',
   'Physiotherapy',
   'Elder Care',
   'Pediatric Care',
   'Palliative Care',
   'Maternity Care',
+  'Others',
 ]
 
 // Short descriptions for homepage & tooltips
@@ -58,7 +57,6 @@ export const SKILL_DESCRIPTIONS: Record<string, string> = {
   'Basic Wound Dressing': 'Cleaning, dressing, and monitoring of simple surgical or injury wounds.',
   'Updating Family': 'Regular health status updates and clear communication with patient family members.',
   'Simple IV Infusion (Existing Line, Stable Patient)': 'IV fluid and medication infusion through an existing line for stable patients.',
-  'IV Infusion (Non-Critical)': 'IV fluid administration for non-critical patients including rate monitoring.',
   'IV Cannulation (Routine, Non-Difficult)': 'Inserting IV cannula for routine, non-difficult vein access.',
   'Urinary Catheter Care (Simple Cases)': 'Catheter hygiene, drainage monitoring, and infection prevention for simple cases.',
   'Tracheostomy Care': 'Airway care including cleaning, suctioning, and infection prevention.',
@@ -66,12 +64,12 @@ export const SKILL_DESCRIPTIONS: Record<string, string> = {
   'Oxygen Therapy (Continuous/High Flow)': 'Safe oxygen administration and monitoring saturation levels.',
   'Complex Wound Care (Aseptic)': 'Sterile wound care preventing infections during all clinical activities.',
   'Complicated Post-Surgical Cases Care': 'Comprehensive post-operative nursing for complex surgical recoveries.',
-  'Aseptic Cannulations': 'Sterile IV cannulation technique for infection-free vascular access.',
   'Physiotherapy': 'At-home physiotherapy for post-surgery rehab, mobility, and pain management.',
   'Elder Care': 'Compassionate care for elderly including mobility, hygiene, and daily living assistance.',
   'Pediatric Care': 'Specialized nursing care for infants and children.',
   'Palliative Care': 'Comfort-focused care for patients with serious or life-limiting conditions.',
   'Maternity Care': 'Pre and post-natal nursing support for mothers and newborns.',
+  'Others': 'Other specialized nursing or medical care services not listed above.',
 }
 
 // Backward-compatible exports

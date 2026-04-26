@@ -160,7 +160,10 @@ export async function updateNurseStatus(id: string, status: NurseStatus, adminCo
     .select()
     .single()
 
-  if (error) return null
+  if (error) {
+    console.error('Supabase updateNurseStatus error:', error)
+    return null
+  }
   return mapNurse(data)
 }
 

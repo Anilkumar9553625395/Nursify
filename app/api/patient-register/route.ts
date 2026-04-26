@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     patientAddress, patientLocation, patientContact,
     emergencyContact, emergencyRelation,
     careDescription, servicesNeeded, diagnosis,
-    recentAdmissions, treatmentPlan,
+    recentAdmissions, treatmentPlan, documentUrl,
   } = body
 
   if (!requesterName || !requesterEmail || !patientName || !patientAge || !patientGender) {
@@ -41,6 +41,7 @@ export async function POST(req: Request) {
         diagnosis: diagnosis || '',
         recent_admissions: recentAdmissions || false,
         treatment_plan: treatmentPlan || '',
+        document_url: documentUrl || null,
         status: 'active',
       })
       .select()

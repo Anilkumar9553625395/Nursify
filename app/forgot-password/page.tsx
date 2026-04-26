@@ -11,6 +11,7 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [resetLink, setResetLink] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -28,6 +29,7 @@ export default function ForgotPasswordPage() {
 
       if (res.ok) {
         setSuccess(true)
+        if (data.resetLink) setResetLink(data.resetLink)
       } else {
         setError(data.message || 'Something went wrong')
       }
@@ -68,7 +70,20 @@ export default function ForgotPasswordPage() {
                 </p>
                 <div className="pt-4">
                   <p className="text-xs text-gray-400 mb-4">Didn't receive the email? Check your spam folder.</p>
-                  <button onClick={() => setSuccess(false)} className="text-emerald-600 font-bold hover:underline text-sm">
+                  
+                  {resetLink && (
+                    <div className="mt-4 mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                      <p className="text-xs text-yellow-800 font-bold mb-2 uppercase tracking-wider flex items-center gap-1">
+                        <AlertCircle size={14} /> Local Dev Mode
+                      </p>
+                      <p className="text-xs text-yellow-700 mb-2">Email sending is not configured. Click the link below to reset your password:</p>
+                      <a href={resetLink} className="text-sm font-bold text-emerald-600 hover:underline break-all">
+                        {resetLink}
+                      </a>
+                    </div>
+                  )}
+
+                  <button onClick={() => { setSuccess(false); setResetLink(''); }} className="text-emerald-600 font-bold hover:underline text-sm">
                     Try another email address
                   </button>
                 </div>

@@ -12,10 +12,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
+    const bucket = (formData.get('bucket') as string) || 'Nurse Profiles'
+
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg']
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'application/pdf']
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type. Please upload JPEG, PNG, or WebP.' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid file type. Please upload JPEG, PNG, WebP, or PDF.' }, { status: 400 })
     }
 
     // Validate file size (max 5MB)
@@ -25,7 +27,8 @@ export async function POST(req: Request) {
 
     // Generate unique filename
     const ext = file.name.split('.').pop() || 'jpg'
-    const fileName = `nurse-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`
+    const prefix = bucket === 'Patient Documents' ? 'patient' : 'nurse'
+    const fileName = `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`
 
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer()
@@ -33,7 +36,7 @@ export async function POST(req: Request) {
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
-      .from('Nurse Profiles')
+      .from(bucket)
       .upload(fileName, buffer, {
         contentType: file.type,
         upsert: false,
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
       // If bucket doesn't exist, return a helpful message
       if (error.message.includes('Bucket not found') || error.message.includes('not found')) {
         return NextResponse.json({ 
-          error: 'Storage not configured. Please create a "Nurse Profiles" bucket in Supabase Storage.',
+          error: `Storage not configured. Please create a "${bucket}" bucket in Supabase Storage.`,
           // Provide a fallback: save as data URL or use a placeholder
           fallbackUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.get('name') as string || 'Nurse')}&size=300&background=10b981&color=fff&bold=true&format=png`
         }, { status: 500 })
@@ -56,7 +59,7 @@ export async function POST(req: Request) {
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('Nurse Profiles')
+      .from(bucket)
       .getPublicUrl(data.path)
 
     return NextResponse.json({ 

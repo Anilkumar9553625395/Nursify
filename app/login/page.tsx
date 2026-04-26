@@ -32,7 +32,17 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (res.ok) {
-        router.push('/')
+        if (loginType === 'admin') {
+          router.push('/admin')
+        } else {
+          if (data.user?.role === 'nurse') {
+            router.push('/my-application')
+          } else if (data.user?.role === 'patient') {
+            router.push('/my-dashboard')
+          } else {
+            router.push('/')
+          }
+        }
         router.refresh()
       } else {
         setError(data.message || 'Login failed')
