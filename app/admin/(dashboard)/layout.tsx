@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Heart, LayoutDashboard, Users, Calendar, UserCheck, Activity, Shield } from 'lucide-react'
+import { Heart, LayoutDashboard, Users, Calendar, UserCheck, Activity, Shield, UserRound } from 'lucide-react'
 import { isAdminAuthenticated } from '@/lib/auth'
 import LogoutButton from '@/components/LogoutButton'
 
 export const metadata: Metadata = { title: 'Nursify Admin Dashboard' }
 
 const navItems = [
-  { href: '/admin',          icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/admin/nurses',   icon: UserCheck,       label: 'Nurses' },
-  { href: '/admin/bookings', icon: Calendar,        label: 'Bookings' },
+  { href: '/admin',           icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/admin/nurses',    icon: UserCheck,       label: 'Nurses' },
+  { href: '/admin/bookings',  icon: Calendar,        label: 'Bookings' },
+  { href: '/admin/patients',  icon: UserRound,       label: 'Patients' },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

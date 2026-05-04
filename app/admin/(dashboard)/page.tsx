@@ -1,12 +1,17 @@
 import { getAllNurses, getAllBookings } from '@/lib/store'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Users, Calendar, CheckCircle, Clock, TrendingUp, AlertCircle, Activity, Shield } from 'lucide-react'
+import { Users, Calendar, CheckCircle, Clock, TrendingUp, AlertCircle, Activity, Shield, UserRound } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboard() {
-  const nurses   = await getAllNurses()
-  const bookings = await getAllBookings()
+  const [nurses, bookings, { count: patientCount }] = await Promise.all([
+    getAllNurses(),
+    getAllBookings(),
+    supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'patient')
+      .then(r => ({ count: r.count ?? 0 })),
+  ])
 
   const stats = {
     totalNurses:    nurses.length,
@@ -15,18 +20,19 @@ export default async function AdminDashboard() {
     totalBookings:  bookings.length,
     assigned:       bookings.filter(b => b.status === 'assigned' || b.status === 'confirmed').length,
     revenue:        bookings.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.totalCost, 0),
+    totalPatients:  patientCount,
   }
 
   const recentBookings  = [...bookings].reverse().slice(0, 5)
   const pendingNursesList = nurses.filter(n => n.status === 'pending')
 
   const statCards = [
-    { icon: Users,       label: 'Total Nurses',    value: stats.totalNurses,    gradient: 'from-emerald-400 to-emerald-600', bg: 'bg-emerald-50' },
-    { icon: CheckCircle, label: 'Approved Nurses',  value: stats.approvedNurses, gradient: 'from-green-400 to-green-600',     bg: 'bg-green-50' },
-    { icon: AlertCircle, label: 'Pending Approval', value: stats.pendingNurses,  gradient: 'from-amber-400 to-amber-600',    bg: 'bg-amber-50' },
-    { icon: Calendar,    label: 'Total Bookings',   value: stats.totalBookings,  gradient: 'from-sapphire-400 to-sapphire-600', bg: 'bg-sapphire-50' },
-    { icon: Clock,       label: 'Assigned',         value: stats.assigned,       gradient: 'from-emerald-400 to-emerald-600', bg: 'bg-emerald-50' },
-    { icon: TrendingUp,  label: 'Total Revenue',    value: `$${stats.revenue.toLocaleString()}`, gradient: 'from-navy-700 to-navy-900', bg: 'bg-navy-50' },
+    { icon: Users,       label: 'Total Nurses',    value: stats.totalNurses,    gradient: 'from-emerald-400 to-emerald-600', href: '/admin/nurses' },
+    { icon: CheckCircle, label: 'Approved Nurses',  value: stats.approvedNurses, gradient: 'from-green-400 to-green-600',     href: '/admin/nurses' },
+    { icon: AlertCircle, label: 'Pending Approval', value: stats.pendingNurses,  gradient: 'from-amber-400 to-amber-600',    href: '/admin/nurses' },
+    { icon: Calendar,    label: 'Total Bookings',   value: stats.totalBookings,  gradient: 'from-sapphire-400 to-sapphire-600', href: '/admin/bookings' },
+    { icon: UserRound,   label: 'Patients',         value: stats.totalPatients,  gradient: 'from-purple-400 to-purple-600', href: '/admin/patients' },
+    { icon: TrendingUp,  label: 'Total Revenue',    value: `₹${stats.revenue.toLocaleString()}`, gradient: 'from-navy-700 to-navy-900', href: null },
   ]
 
   return (
@@ -47,14 +53,24 @@ export default async function AdminDashboard() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {statCards.map(({ icon: Icon, label, value, gradient, bg }) => (
-          <div key={label} className="card p-5 group hover:shadow-card-hover transition-all duration-300">
-            <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform`}>
-              <Icon size={20} className="text-white" />
+        {statCards.map(({ icon: Icon, label, value, gradient, href }) => (
+          href ? (
+            <Link key={label} href={href} className="card p-5 group hover:shadow-card-hover transition-all duration-300 block">
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform`}>
+                <Icon size={20} className="text-white" />
+              </div>
+              <p className="text-2xl font-extrabold text-navy-900">{value}</p>
+              <p className="text-sm text-gray-500 mt-0.5 font-medium">{label}</p>
+            </Link>
+          ) : (
+            <div key={label} className="card p-5 group hover:shadow-card-hover transition-all duration-300">
+              <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 shadow-sm group-hover:scale-105 transition-transform`}>
+                <Icon size={20} className="text-white" />
+              </div>
+              <p className="text-2xl font-extrabold text-navy-900">{value}</p>
+              <p className="text-sm text-gray-500 mt-0.5 font-medium">{label}</p>
             </div>
-            <p className="text-2xl font-extrabold text-navy-900">{value}</p>
-            <p className="text-sm text-gray-500 mt-0.5 font-medium">{label}</p>
-          </div>
+          )
         ))}
       </div>
 

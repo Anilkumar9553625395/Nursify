@@ -43,7 +43,7 @@ export default function Navbar() {
   const authLinks = user ? [
     ...(user.role === 'nurse' 
       ? [{ href: '/my-application', label: 'Application Status' }] 
-      : [] // Patients only need My Care Requests
+      : [{ href: '/patient-profile', label: 'My Profile' }]
     ),
     { href: '/my-dashboard', label: 'My Care Requests' },
   ] : [

@@ -88,7 +88,7 @@ export default function NurseProfilePage() {
       .then(data => { setNurse(data); setLoading(false) })
       .catch(() => setLoading(false))
 
-    // Auto-fill from recent booking if logged in
+    // Auth check + auto-fill from saved profile
     fetch('/api/auth/me')
       .then(r => r.json())
       .then(authData => {
@@ -96,28 +96,43 @@ export default function NurseProfilePage() {
           setIsLoggedIn(true)
           setRequesterEmail(authData.user.email)
           setUserRole(authData.user.role)
-          
-          // Fetch their recent bookings
+
+          // 1. Fetch saved profile for instant auto-fill
+          fetch('/api/auth/profile')
+            .then(r => r.json())
+            .then(profileData => {
+              const p = profileData?.profile
+              if (p) {
+                if (p.username) setRequesterName(p.username)
+                if (p.phone) setRequesterPhone(p.phone)
+                if (p.location) setPatientLocation(p.location)
+                if (p.address) setPatientAddress(p.address)
+                if (p.emergencyContact) setEmergencyContact(p.emergencyContact)
+                if (p.emergencyRelation) setEmergencyRelation(p.emergencyRelation)
+              }
+            })
+
+          // 2. Also check last booking for clinical details (diagnosis, services etc)
           fetch(`/api/bookings?email=${authData.user.email}`)
             .then(r => r.json())
             .then(bookings => {
               if (bookings && bookings.length > 0) {
-                // Sort by most recent
                 bookings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                 const last = bookings[0]
-                
-                setRequesterName(last.requesterName || '')
-                setRequesterPhone(last.requesterPhone || '')
+
+                // Only fill contact fields if profile didn't already fill them
+                setRequesterName(prev => prev || last.requesterName || '')
+                setRequesterPhone(prev => prev || last.requesterPhone || '')
                 setRelation(last.relationToPatient || 'Self')
-                
+
                 setPatientName(last.patientName || '')
                 setPatientAge(last.patientAge?.toString() || '')
                 setPatientGender(last.patientGender || '')
-                setPatientAddress(last.patientAddress || '')
-                setPatientLocation(last.patientLocation || LOCATIONS[0])
-                setPatientContact(last.patientContact || '')
-                setEmergencyContact(last.emergencyContact || '')
-                setEmergencyRelation(last.emergencyRelation || '')
+                setPatientAddress(prev => prev || last.patientAddress || '')
+                setPatientLocation(prev => prev || last.patientLocation || LOCATIONS[0])
+                setPatientContact(prev => prev || last.patientContact || '')
+                setEmergencyContact(prev => prev || last.emergencyContact || '')
+                setEmergencyRelation(prev => prev || last.emergencyRelation || '')
               }
             })
         } else {
@@ -424,6 +439,15 @@ export default function NurseProfilePage() {
                         </h2>
                         <p className="text-sm text-gray-500">Who is scheduling this care? For you or your loved ones.</p>
                       </div>
+
+                      {(requesterName || requesterPhone) && (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-2">
+                          <CheckCircle size={15} className="text-emerald-500 flex-shrink-0" />
+                          <p className="text-xs text-emerald-700 font-medium">
+                            Details auto-filled from your saved profile. You can edit them below.
+                          </p>
+                        </div>
+                      )}
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
                           <label className="label">Your Full Name *</label>
