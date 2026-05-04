@@ -75,6 +75,7 @@ export default function NurseProfilePage() {
   const [userRole, setUserRole] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [authLoading, setAuthLoading] = useState(true)
+  const [useDifferentDetails, setUseDifferentDetails] = useState(false)
 
   // Review form
   const [reviewName, setReviewName] = useState('')
@@ -219,6 +220,7 @@ export default function NurseProfilePage() {
     if (res.ok) {
       setSuccess(true)
       setFormError('')
+      // Don't auto-reset everything yet, let the user see success message
     } else {
       const data = await res.json()
       setFormError(data.error || 'An error occurred while submitting.')
@@ -529,6 +531,35 @@ export default function NurseProfilePage() {
                             {RELATIONS.filter(r => r !== 'Self').map(r => <option key={r}>{r}</option>)}
                           </select>
                         </div>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-6">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            checked={useDifferentDetails} 
+                            onChange={(e) => {
+                              setUseDifferentDetails(e.target.checked)
+                              if (e.target.checked) {
+                                // Clear patient fields to allow different details
+                                setPatientName('')
+                                setPatientAge('')
+                                setPatientGender('')
+                                setPatientAddress('')
+                                setPatientLocation(LOCATIONS[0])
+                                setPatientContact('')
+                                setEmergencyContact('')
+                                setEmergencyRelation('')
+                                setRelation('')
+                              }
+                            }}
+                            className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                          />
+                          <div>
+                            <p className="font-bold text-blue-900 text-sm">Use different patient details for this appointment</p>
+                            <p className="text-xs text-blue-700">Check this if the care is for someone else or requires different contact info.</p>
+                          </div>
+                        </label>
                       </div>
                       <div className="flex justify-between pt-2">
                         <button type="button" onClick={() => setStep(1)} className="btn-secondary">← Back</button>
@@ -859,6 +890,45 @@ export default function NurseProfilePage() {
                         </button>
                       </div>
                     </>}
+
+                    {success && (
+                      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-navy-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                        <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl scale-in-center">
+                          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle size={40} className="text-emerald-600" />
+                          </div>
+                          <h3 className="text-2xl font-extrabold text-navy-900 mb-2">Request Submitted!</h3>
+                          <p className="text-gray-500 mb-8 leading-relaxed">
+                            Your care request for {patientName} has been sent. Our team will review and assign a nurse shortly.
+                          </p>
+                          <div className="space-y-3">
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                setSuccess(false)
+                                setStep(1)
+                                // Reset for another appointment
+                                setStartDate('')
+                                setNotes('')
+                                setClinicalNotes('')
+                                setDiagnosis('')
+                                setServicesNeeded([])
+                              }}
+                              className="w-full btn-primary py-4 font-bold"
+                            >
+                              Schedule Another Appointment
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={() => router.push('/my-dashboard')}
+                              className="w-full btn-secondary py-4 font-bold"
+                            >
+                              View My Dashboard
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                   </form>
                 </>

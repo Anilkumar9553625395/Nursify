@@ -38,7 +38,7 @@ export default function LoginPage() {
           if (data.user?.role === 'nurse') {
             router.push('/my-application')
           } else if (data.user?.role === 'patient') {
-            router.push('/my-dashboard')
+            router.push('/patient-profile')
           } else {
             router.push('/')
           }

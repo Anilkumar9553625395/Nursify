@@ -32,11 +32,10 @@ export default function SignupPage() {
       const data = await res.json()
 
       if (res.ok) {
-        // Redirection logic based on role
         if (role === 'nurse') {
-          router.push('/register') // Continue to nurse registration form
+          router.push('/register')
         } else {
-          router.push('/find-nurses') // Patient onboarding is now handled during scheduling
+          router.push('/patient-profile')
         }
       } else {
         setError(data.message || 'Signup failed')
