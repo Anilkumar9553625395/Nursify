@@ -10,10 +10,10 @@ import {
 import { CLINICAL_SKILLS, SKILL_DESCRIPTIONS } from '@/lib/constants'
 
 const stats = [
-  { label: 'Verified Nurses',     value: '500+',   icon: UserCheck },
-  { label: 'Families Served',     value: '2,000+', icon: Users },
-  { label: 'Cities Covered',      value: '25+',    icon: Activity },
-  { label: 'Patient Satisfaction', value: '98%',    icon: Heart },
+  { label: 'Quality Verified',    value: '100%',     icon: Shield },
+  { label: 'Serving Now',         value: 'Hyderabad',icon: MapPin },
+  { label: 'Coming Soon',         value: 'All India',icon: Sparkles },
+  { label: 'Patient Focus',       value: 'Top Tier', icon: Heart },
 ]
 
 // Map each clinical skill to an icon and color for the homepage
@@ -153,8 +153,8 @@ export default function HomePage() {
                   <Activity size={22} className="text-white" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 font-medium">Active Nurses</p>
-                  <p className="text-2xl font-extrabold text-navy-900">500+</p>
+                  <p className="text-xs text-gray-500 font-medium">Quality Promise</p>
+                  <p className="text-2xl font-extrabold text-navy-900">100%</p>
                 </div>
               </div>
             </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
                 <MapPin size={16} className="text-emerald-500" />
                 <span className="font-bold text-navy-900 text-sm">Hyderabad</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">20+ areas covered</p>
+              <p className="text-xs text-gray-500 mt-1">Expanding Soon</p>
             </div>
           </div>
         </div>
@@ -216,24 +216,24 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-20 items-start">
           <div className="grid grid-cols-2 gap-4">
              <div className="w-full rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-8 text-white shadow-glass flex flex-col justify-end">
-               <Heart size={32} className="mb-4 opacity-80" />
-               <p className="text-4xl font-extrabold">500+</p>
-               <p className="text-emerald-100 font-medium mt-1">Verified Nurses</p>
+               <Shield size={32} className="mb-4 opacity-80" />
+               <p className="text-4xl font-extrabold">100%</p>
+               <p className="text-emerald-100 font-medium mt-1">Verified Caregivers</p>
              </div>
              <div className="w-full rounded-3xl bg-gradient-to-br from-navy-800 to-navy-900 p-8 text-white shadow-glass mt-10 flex flex-col justify-end">
-               <Users size={32} className="mb-4 opacity-80" />
-               <p className="text-4xl font-extrabold">2,000+</p>
-               <p className="text-gray-300 font-medium mt-1">Families Served</p>
+               <Heart size={32} className="mb-4 opacity-80" />
+               <p className="text-4xl font-extrabold">Top</p>
+               <p className="text-gray-300 font-medium mt-1">Quality Standards</p>
              </div>
              <div className="w-full rounded-3xl bg-gradient-to-br from-sapphire-500 to-sapphire-700 p-8 text-white shadow-glass flex flex-col justify-end">
                <MapPin size={32} className="mb-4 opacity-80" />
-               <p className="text-4xl font-extrabold">20+</p>
-               <p className="text-sapphire-100 font-medium mt-1">Areas in Hyderabad</p>
+               <p className="text-4xl font-extrabold">HYD</p>
+               <p className="text-sapphire-100 font-medium mt-1">Serving Hyderabad</p>
              </div>
              <div className="w-full rounded-3xl bg-gradient-to-br from-amber-400 to-amber-600 p-8 text-white shadow-glass mt-[-20px] flex flex-col justify-end">
-               <Star size={32} className="mb-4 opacity-80" />
-               <p className="text-4xl font-extrabold">4.9★</p>
-               <p className="text-amber-100 font-medium mt-1">Average Rating</p>
+               <Sparkles size={32} className="mb-4 opacity-80" />
+               <p className="text-4xl font-extrabold">Soon</p>
+               <p className="text-amber-100 font-medium mt-1">All India Launch</p>
              </div>
           </div>
 
@@ -261,15 +261,15 @@ export default function HomePage() {
             </div>
 
             <div className="mt-10 flex items-center gap-5 flex-wrap">
-               <div className="bg-gray-50 border border-gray-100 text-navy-900 p-4 rounded-2xl flex items-center gap-4">
-                  <div className="w-11 h-11 bg-gray-200 rounded-xl flex items-center justify-center">
+               <a href="https://wa.me/919553625395" target="_blank" rel="noopener noreferrer" className="bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-100 text-navy-900 p-4 rounded-2xl flex items-center gap-4 group">
+                  <div className="w-11 h-11 bg-gray-200 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
                      <PhoneIncoming size={20} className="text-emerald-600" />
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">Emergency Line</p>
-                    <p className="font-bold text-lg tracking-tight">+91 95536 25395</p>
+                    <p className="font-bold text-lg tracking-tight group-hover:text-emerald-600 transition-colors">+91 95536 25395</p>
                   </div>
-               </div>
+               </a>
                <Link href="/find-nurses" className="btn-primary px-8 py-3.5 text-base">
                  Schedule Care <ArrowRight size={18} />
                </Link>

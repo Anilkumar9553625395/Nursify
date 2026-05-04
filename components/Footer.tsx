@@ -28,7 +28,7 @@ export default function Footer() {
               </div>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed">
-              Professional home nursing care — for you and your loved ones. Verified nurses, transparent pricing across India.
+              Professional home nursing care — for you and your loved ones. Verified nurses, transparent pricing in Hyderabad (All India Coming Soon).
             </p>
             <div className="flex items-center gap-2 mt-4">
               <Shield size={14} className="text-emerald-400" />
@@ -74,12 +74,14 @@ export default function Footer() {
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-5">Contact Us</h4>
             <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <Phone size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-white">+91 95536 25395</p>
-                  <p className="text-xs text-gray-500">24/7 Emergency Line</p>
-                </div>
+              <li>
+                <a href="https://wa.me/919553625395" target="_blank" rel="noopener noreferrer" className="flex items-start gap-3 group">
+                  <Phone size={16} className="text-emerald-400 mt-0.5 flex-shrink-0 group-hover:text-emerald-300 transition-colors" />
+                  <div>
+                    <p className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">+91 95536 25395</p>
+                    <p className="text-xs text-gray-500">24/7 Emergency Line</p>
+                  </div>
+                </a>
               </li>
               <li className="flex items-start gap-3">
                 <Mail size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
@@ -87,7 +89,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <MapPin size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-gray-400">India — Serving All Major Cities</p>
+                <p className="text-sm text-gray-400">Serving Hyderabad (All India Coming Soon)</p>
               </li>
             </ul>
           </div>
@@ -100,7 +102,7 @@ export default function Footer() {
           </p>
           <div className="flex items-center gap-2">
             <Activity size={14} className="text-emerald-500" />
-            <span className="text-xs font-semibold text-gray-500">Trusted by families across India</span>
+            <span className="text-xs font-semibold text-gray-500">Trusted by families across Hyderabad</span>
           </div>
         </div>
       </div>

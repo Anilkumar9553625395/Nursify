@@ -3,9 +3,9 @@ import './globals.css'
 import WhatsAppButton from '@/components/WhatsAppButton'
 
 export const metadata: Metadata = {
-  title: 'Nursify – Trusted Home Nursing Care in India',
+  title: 'Nursify – Trusted Home Nursing Care in Hyderabad',
   description: 'Book verified, licensed nurses for personalized home healthcare. Professional nursing care by the hour or day with complete transparency and trust.',
-  keywords: 'nursing care, home nurse, healthcare, medical care, India, nurse booking',
+  keywords: 'nursing care, home nurse, healthcare, medical care, Hyderabad, nurse booking',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
