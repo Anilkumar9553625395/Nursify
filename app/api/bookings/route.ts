@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getAllBookings, getBookingsByEmail, addBooking } from '@/lib/store'
+import { getAllBookings, getBookingsByEmail, addBooking, getNurseById } from '@/lib/store'
+import { sendBookingConfirmation, sendNurseBookingNotification } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,6 +76,25 @@ export async function POST(req: Request) {
       totalCost: Number(totalCost),
       notes: notes || '',
     })
+
+    // Send Notifications
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      try {
+        // 1. Notify Patient
+        await sendBookingConfirmation(requesterEmail, booking)
+
+        // 2. Notify Nurse (Fetch nurse email first)
+        const nurse = await getNurseById(nurseId)
+        if (nurse?.email) {
+          await sendNurseBookingNotification(nurse.email, booking)
+        }
+      } catch (err) {
+        console.error('Email notification failed:', err)
+        // Don't fail the whole request if email fails, but log it
+      }
+    } else {
+      console.log('Email not configured. Skipping notifications.')
+    }
 
     return NextResponse.json(booking, { status: 201 })
   } catch (error: any) {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { updateNurseStatus, type NurseStatus } from '@/lib/store'
+import { sendNurseStatusUpdate } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,6 +16,15 @@ export async function PATCH(
 
   const updated = await updateNurseStatus(params.id, status, adminComments)
   if (!updated) return NextResponse.json({ error: 'Nurse not found' }, { status: 404 })
+
+  // Send Notification
+  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    try {
+      await sendNurseStatusUpdate(updated.email, updated)
+    } catch (err) {
+      console.error('Nurse status email failed:', err)
+    }
+  }
 
   return NextResponse.json(updated)
 }
