@@ -650,17 +650,6 @@ export default function NurseProfilePage() {
                             <label className="label text-emerald-800">Diagnosis (from discharge summary) *</label>
                             <input value={diagnosis} onChange={e => setDiagnosis(e.target.value)} className="input border-emerald-200" placeholder="e.g. Type 2 Diabetes, Post-CABG, Hip Replacement..." required />
                           </div>
-                          <div>
-                            <label className="label text-emerald-800">Medical Reports / Attachments (Links)</label>
-                            <input 
-                              type="text" 
-                              value={documents} 
-                              onChange={e => setDocuments(e.target.value)} 
-                              className="input border-emerald-200" 
-                              placeholder="Paste Google Drive / Dropbox link to reports..." 
-                            />
-                            <p className="text-[10px] text-emerald-600 mt-1">Nurses will see these after your request is approved.</p>
-                          </div>
                         </div>
                       )}
                       {!recentAdmissions && (
@@ -669,6 +658,24 @@ export default function NurseProfilePage() {
                           <input value={diagnosis} onChange={e => setDiagnosis(e.target.value)} className="input" placeholder="e.g. Type 2 Diabetes, Chronic back pain..." />
                         </div>
                       )}
+
+                      <div className="mt-6 pt-6 border-t border-gray-100">
+                        <label className="label flex items-center gap-2">
+                          <FileText size={16} className="text-emerald-500" />
+                          Medical Reports / Attachments (Optional)
+                        </label>
+                        <input 
+                          type="text" 
+                          value={documents} 
+                          onChange={e => setDocuments(e.target.value)} 
+                          className="input" 
+                          placeholder="Paste Google Drive / Dropbox link to reports..." 
+                        />
+                        <p className="text-[10px] text-emerald-600 mt-1.5 font-medium">
+                          Nurses will securely see these after your request is approved.
+                        </p>
+                      </div>
+
                       <div className="flex justify-between pt-2">
                         <button type="button" onClick={() => setStep(2)} className="btn-secondary">← Back</button>
                         <button type="button" onClick={() => {
