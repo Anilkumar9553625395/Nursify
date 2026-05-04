@@ -71,6 +71,7 @@ export default function NurseProfilePage() {
 
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [formError, setFormError] = useState('')
   const [userRole, setUserRole] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [authLoading, setAuthLoading] = useState(true)
@@ -199,7 +200,14 @@ export default function NurseProfilePage() {
         notes,
       }),
     })
-    if (res.ok) setSuccess(true)
+    
+    if (res.ok) {
+      setSuccess(true)
+      setFormError('')
+    } else {
+      const data = await res.json()
+      setFormError(data.error || 'An error occurred while submitting.')
+    }
     setSubmitting(false)
   }
 
@@ -808,7 +816,14 @@ export default function NurseProfilePage() {
                         </p>
                       </div>
 
-                      <div className="flex justify-between pt-2">
+                      {formError && (
+                        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 mt-4">
+                          <AlertTriangle className="text-red-600 flex-shrink-0 mt-0.5" size={18} />
+                          <p className="text-sm text-red-700 font-medium">{formError}</p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between pt-2 mt-4">
                         <button type="button" onClick={() => setStep(5)} className="btn-secondary">← Back</button>
                         <button type="submit" disabled={submitting || !startDate || !emergencyDisclaimer} className="btn-primary">
                           {submitting ? (
