@@ -15,7 +15,8 @@ import {
   Activity,
   Calendar,
   IndianRupee,
-  MapPin
+  MapPin,
+  User
 } from 'lucide-react'
 import Link from 'next/link'
 import EditNurseProfile from '@/components/EditNurseProfile'

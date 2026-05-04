@@ -12,7 +12,8 @@ import {
   MapPin, 
   Activity,
   IndianRupee,
-  ArrowRight
+  ArrowRight,
+  Stethoscope
 } from 'lucide-react'
 import Link from 'next/link'
 
