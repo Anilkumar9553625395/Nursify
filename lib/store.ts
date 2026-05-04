@@ -79,6 +79,7 @@ export interface Booking {
   totalCost: number
   status: BookingStatus
   notes?: string
+  documents?: string
   createdAt: string
 }
 
@@ -317,6 +318,7 @@ export async function addBooking(booking: Omit<Booking, 'id' | 'createdAt' | 'st
     relativeAadhar: booking.relativeAadhar,
     noConsentReason: booking.noConsentReason,
     additionalNotes: booking.notes,
+    documents: booking.documents,
   })
 
   const { data, error } = await supabase
@@ -449,6 +451,7 @@ function mapBooking(row: any): Booking {
     totalCost: row.total_cost,
     status: row.status,
     notes: ext.additionalNotes || (typeof row.notes === 'string' && !row.notes.startsWith('{') ? row.notes : ''),
+    documents: row.documents || ext.documents || '',
     createdAt: row.created_at,
   }
 }

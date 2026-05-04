@@ -129,7 +129,7 @@ export default function PatientProfilePage() {
           </div>
 
           {/* Quick links */}
-          <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <Link href="/find-nurses" className="card p-4 flex items-center justify-between group hover:shadow-card-hover transition-all">
               <div>
                 <p className="font-bold text-navy-900 text-sm">Find Nurses</p>
@@ -141,6 +141,13 @@ export default function PatientProfilePage() {
               <div>
                 <p className="font-bold text-navy-900 text-sm">My Bookings</p>
                 <p className="text-xs text-gray-400">View care requests</p>
+              </div>
+              <ChevronRight size={16} className="text-emerald-500 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link href="/clinical-history" className="card p-4 flex items-center justify-between group hover:shadow-card-hover transition-all border-emerald-100 bg-emerald-50/20">
+              <div>
+                <p className="font-bold text-navy-900 text-sm">Clinical History</p>
+                <p className="text-xs text-emerald-600 font-medium">Your medical journey</p>
               </div>
               <ChevronRight size={16} className="text-emerald-500 group-hover:translate-x-1 transition-transform" />
             </Link>

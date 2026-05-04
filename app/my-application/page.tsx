@@ -254,6 +254,18 @@ export default async function MyApplicationPage() {
                             <MapPin size={11} className="text-emerald-500" /> {b.patientLocation}
                           </p>
                         )}
+
+                        {/* Full Details Link (Visible after assignment/confirmation) */}
+                        {['assigned', 'confirmed', 'completed'].includes(b.status) && (
+                          <div className="mt-5 pt-4 border-t border-gray-100">
+                            <Link 
+                              href={`/nurse/patient-details/${b.id}`}
+                              className="w-full btn-secondary py-2.5 text-xs font-bold flex items-center justify-center gap-2 border-emerald-100 text-emerald-600 hover:bg-emerald-50 transition-all"
+                            >
+                              <User size={14} /> View Complete Patient Profile & Medical Records
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

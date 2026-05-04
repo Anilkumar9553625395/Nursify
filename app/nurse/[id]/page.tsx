@@ -67,6 +67,7 @@ export default function NurseProfilePage() {
   const [days, setDays] = useState(1)
   const [startDate, setStartDate] = useState('')
   const [notes, setNotes] = useState('')
+  const [documents, setDocuments] = useState('')
   const [emergencyDisclaimer, setEmergencyDisclaimer] = useState(false)
 
   const [submitting, setSubmitting] = useState(false)
@@ -221,6 +222,7 @@ export default function NurseProfilePage() {
         startDate,
         totalCost: cost,
         notes,
+        documents,
       }),
     })
     
@@ -647,6 +649,17 @@ export default function NurseProfilePage() {
                           <div>
                             <label className="label text-emerald-800">Diagnosis (from discharge summary) *</label>
                             <input value={diagnosis} onChange={e => setDiagnosis(e.target.value)} className="input border-emerald-200" placeholder="e.g. Type 2 Diabetes, Post-CABG, Hip Replacement..." required />
+                          </div>
+                          <div>
+                            <label className="label text-emerald-800">Medical Reports / Attachments (Links)</label>
+                            <input 
+                              type="text" 
+                              value={documents} 
+                              onChange={e => setDocuments(e.target.value)} 
+                              className="input border-emerald-200" 
+                              placeholder="Paste Google Drive / Dropbox link to reports..." 
+                            />
+                            <p className="text-[10px] text-emerald-600 mt-1">Nurses will see these after your request is approved.</p>
                           </div>
                         </div>
                       )}
