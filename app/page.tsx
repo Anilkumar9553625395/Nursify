@@ -98,10 +98,6 @@ export default function HomePage() {
                 <Search size={20} />
                 Schedule Care
               </Link>
-              <Link href="/register-patient" className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-3 border border-white/20 hover:border-emerald-400/40">
-                <Heart size={20} />
-                Register as Patient
-              </Link>
               <Link href="/register" className="border-2 border-white/20 hover:border-emerald-400/50 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-3 hover:bg-white/5">
                 <UserPlus size={20} />
                 Join as Nurse
@@ -330,9 +326,6 @@ export default function HomePage() {
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link href="/find-nurses" className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-medical hover:shadow-lg transition-all duration-300 flex items-center gap-3 active:scale-[0.97]">
               <Search size={20} /> Schedule Care
-            </Link>
-            <Link href="/register-patient" className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-3 border border-white/20 hover:border-emerald-400/40">
-              <Heart size={20} /> Register as Patient
             </Link>
             <Link href="/register" className="border-2 border-white/20 hover:border-emerald-400/50 text-white px-10 py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center gap-3 hover:bg-white/5">
               <UserPlus size={20} /> Join Our Team
