@@ -15,7 +15,6 @@ export default function NurseCard({ nurse }: { nurse: Nurse }) {
               alt={nurse.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-700"
-              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -79,13 +78,15 @@ export default function NurseCard({ nurse }: { nurse: Nurse }) {
             )}
           </div>
 
-          {/* Price — Airbnb style */}
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <span className="font-bold text-navy-900">₹{nurse.hourlyRate}</span>
-            <span className="text-sm text-gray-500"> / hour</span>
-            {nurse.dailyRate > 0 && (
-              <span className="text-sm text-gray-400 ml-2">· ₹{nurse.dailyRate} / day</span>
-            )}
+          {/* Price & Action — Airbnb style */}
+          <div className="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+            <div>
+              <span className="font-bold text-navy-900">₹{nurse.hourlyRate}</span>
+              <span className="text-sm text-gray-500"> / hour</span>
+            </div>
+            <div className="bg-emerald-50 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-300">
+              Schedule Care
+            </div>
           </div>
         </div>
       </div>

@@ -18,6 +18,7 @@ import {
   MapPin
 } from 'lucide-react'
 import Link from 'next/link'
+import EditNurseProfile from '@/components/EditNurseProfile'
 
 export const dynamic = 'force-dynamic'
 
@@ -125,11 +126,14 @@ export default async function MyApplicationPage() {
                   </div>
                 </div>
 
-                {nurse.status === 'approved' && (
-                  <Link href={`/nurse/${nurse.id}`} className="btn-primary border-emerald-500 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-6 py-3 font-bold border-2 shadow-none group">
-                    View Public Profile <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                )}
+                <div className="flex gap-2">
+                  <EditNurseProfile nurse={nurse} />
+                  {nurse.status === 'approved' && (
+                    <Link href={`/nurse/${nurse.id}`} className="btn-primary border-emerald-500 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-6 py-2.5 font-bold border-2 shadow-none group">
+                      View Public Profile <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  )}
+                </div>
               </div>
 
               {/* Progress Bar */}

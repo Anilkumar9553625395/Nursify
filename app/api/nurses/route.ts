@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getApprovedNurses, addNurse } from '@/lib/store'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Cache response for 60 seconds
 
 export async function GET() {
   const nurses = await getApprovedNurses()

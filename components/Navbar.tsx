@@ -43,12 +43,11 @@ export default function Navbar() {
   const authLinks = user ? [
     ...(user.role === 'nurse' 
       ? [{ href: '/my-application', label: 'Application Status' }] 
-      : [{ href: '/register-patient', label: 'Register as Patient' }]
+      : [] // Patients only need My Care Requests
     ),
-    { href: '/bookings',          label: 'My Care Requests' },
+    { href: '/my-dashboard', label: 'My Care Requests' },
   ] : [
-    { href: '/register-patient',  label: 'Register as Patient' },
-    { href: '/register',          label: 'Register as Nurse' },
+    { href: '/register', label: 'Register as Nurse' },
   ]
 
   const links = [...baseLinks, ...authLinks]

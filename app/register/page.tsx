@@ -296,7 +296,6 @@ export default function RegisterPage() {
                           alt="Preview"
                           fill
                           className="object-cover"
-                          unoptimized
                         />
                         {photo && (
                           <div className="absolute bottom-0 inset-x-0 bg-emerald-500 text-white text-[9px] font-bold text-center py-0.5">
@@ -343,9 +342,10 @@ export default function RegisterPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <label className="label flex items-center gap-2"><MapPin size={15} className="text-emerald-500" /> Primary Service Area *</label>
-                  <select value={location} onChange={e => setLocation(e.target.value)} className="input" required>
-                    {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-                  </select>
+                  <input list="locations-list" value={location} onChange={e => setLocation(e.target.value)} className="input" placeholder="Enter or select area" required />
+                  <datalist id="locations-list">
+                    {LOCATIONS.map(l => <option key={l} value={l} />)}
+                  </datalist>
                   <p className="text-xs text-gray-400 mt-1.5">Select the primary area where you are available to provide care.</p>
                 </div>
                 <div className="sm:col-span-1">

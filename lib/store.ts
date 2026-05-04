@@ -149,6 +149,35 @@ export async function addNurse(nurse: Omit<Nurse, 'id' | 'createdAt' | 'status' 
   return mapNurse(data)
 }
 
+export async function updateNurse(id: string, updates: Partial<Nurse>): Promise<Nurse | null> {
+  const dbUpdates: any = {}
+  if (updates.name !== undefined) dbUpdates.name = updates.name
+  if (updates.phone !== undefined) dbUpdates.phone = updates.phone
+  if (updates.photo !== undefined) dbUpdates.photo = updates.photo
+  if (updates.experience !== undefined) dbUpdates.experience = updates.experience
+  if (updates.hourlyRate !== undefined) dbUpdates.hourly_rate = updates.hourlyRate
+  if (updates.dailyRate !== undefined) dbUpdates.daily_rate = updates.dailyRate
+  if (updates.availability !== undefined) dbUpdates.availability = updates.availability
+  if (updates.specializations !== undefined) dbUpdates.specializations = updates.specializations
+  if (updates.languages !== undefined) dbUpdates.languages = updates.languages
+  if (updates.qualifications !== undefined) dbUpdates.qualifications = updates.qualifications
+  if (updates.bio !== undefined) dbUpdates.bio = updates.bio
+  if (updates.location !== undefined) dbUpdates.location = updates.location
+
+  const { data, error } = await supabase
+    .from('nurses')
+    .update(dbUpdates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Supabase updateNurse error:', error)
+    return null
+  }
+  return mapNurse(data)
+}
+
 export async function updateNurseStatus(id: string, status: NurseStatus, adminComments?: string): Promise<Nurse | null> {
   const { data, error } = await supabase
     .from('nurses')
@@ -320,6 +349,17 @@ export async function updateBookingStatus(id: string, status: BookingStatus): Pr
     .update({ status })
     .eq('id', id)
     .select()
+    .single()
+
+  if (error) return null
+  return mapBooking(data)
+}
+
+export async function getBookingById(id: string): Promise<Booking | null> {
+  const { data, error } = await supabase
+    .from('bookings')
+    .select('*')
+    .eq('id', id)
     .single()
 
   if (error) return null

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { CheckCircle, XCircle, Clock, Search, Star, User } from 'lucide-react'
 import type { Nurse, NurseStatus } from '@/lib/store'
 
@@ -30,11 +31,17 @@ export default function AdminNursesPage() {
     fetch('/api/admin/nurses')
       .then(r => r.json())
       .then(data => { 
-        setNurses(data)
+        setNurses(Array.isArray(data) ? data : [])
         const initialComments: Record<string, string> = {}
-        data.forEach((n: Nurse) => { initialComments[n.id] = n.adminComments || '' })
+        if (Array.isArray(data)) {
+          data.forEach((n: Nurse) => { initialComments[n.id] = n.adminComments || '' })
+        }
         setComments(initialComments)
         setLoading(false) 
+      })
+      .catch((err) => {
+        console.error(err)
+        setLoading(false)
       })
   }, [])
 
@@ -54,8 +61,8 @@ export default function AdminNursesPage() {
 
   const filtered = nurses.filter(n => {
     const matchTab    = tab === 'all' || n.status === tab
-    const matchSearch = !search || n.name.toLowerCase().includes(search.toLowerCase()) ||
-      n.email.toLowerCase().includes(search.toLowerCase())
+    const matchSearch = !search || (n.name?.toLowerCase() || '').includes(search.toLowerCase()) ||
+      (n.email?.toLowerCase() || '').includes(search.toLowerCase())
     return matchTab && matchSearch
   })
 
@@ -105,7 +112,7 @@ export default function AdminNursesPage() {
                 {/* Avatar */}
                 <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-teal-50 flex-shrink-0">
                   {nurse.photo ? (
-                    <Image src={nurse.photo} alt={nurse.name} fill className="object-cover" unoptimized />
+                    <Image src={nurse.photo} alt={nurse.name} fill className="object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-teal-300">
                       {nurse.name.charAt(0)}
@@ -158,6 +165,9 @@ export default function AdminNursesPage() {
 
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row lg:flex-col gap-2 flex-shrink-0 w-full lg:w-36">
+                  <Link href={`/admin/nurses/${nurse.id}`} className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl text-sm font-bold transition-all mb-2">
+                    View Details
+                  </Link>
                   {nurse.status === 'pending' && (
                     <>
                       <button

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { Calendar, Clock, DollarSign, Search } from 'lucide-react'
 import type { Booking, BookingStatus } from '@/lib/store'
 
@@ -22,7 +23,11 @@ export default function AdminBookingsPage() {
   useEffect(() => {
     fetch('/api/admin/bookings')
       .then(r => r.json())
-      .then(data => { setBookings(data); setLoading(false) })
+      .then(data => { setBookings(Array.isArray(data) ? data : []); setLoading(false) })
+      .catch((err) => {
+        console.error(err)
+        setLoading(false)
+      })
   }, [])
 
   async function updateStatus(id: string, status: BookingStatus) {
@@ -41,9 +46,9 @@ export default function AdminBookingsPage() {
     const matchStatus = statusFilter === 'all' || b.status === statusFilter
     const q = search.toLowerCase()
     const matchSearch = !q ||
-      b.patientName.toLowerCase().includes(q) ||
-      b.nurseName.toLowerCase().includes(q) ||
-      b.requesterEmail.toLowerCase().includes(q)
+      (b.patientName?.toLowerCase() || '').includes(q) ||
+      (b.nurseName?.toLowerCase() || '').includes(q) ||
+      (b.requesterEmail?.toLowerCase() || '').includes(q)
     return matchStatus && matchSearch
   })
 
@@ -135,7 +140,10 @@ export default function AdminBookingsPage() {
                 </div>
 
                 {/* Status actions */}
-                <div className="flex gap-2 flex-wrap flex-shrink-0">
+                <div className="flex gap-2 flex-wrap flex-shrink-0 flex-col sm:flex-row items-end sm:items-center">
+                  <Link href={`/admin/bookings/${b.id}`} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-medium transition-all">
+                    View Details
+                  </Link>
                   {b.status === 'pending' && (
                     <>
                       <button

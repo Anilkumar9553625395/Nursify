@@ -71,6 +71,9 @@ export default function NurseProfilePage() {
 
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [userRole, setUserRole] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [authLoading, setAuthLoading] = useState(true)
 
   // Review form
   const [reviewName, setReviewName] = useState('')
@@ -83,6 +86,49 @@ export default function NurseProfilePage() {
       .then(r => r.json())
       .then(data => { setNurse(data); setLoading(false) })
       .catch(() => setLoading(false))
+
+    // Auto-fill from recent booking if logged in
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(authData => {
+        if (authData.user) {
+          setIsLoggedIn(true)
+          setRequesterEmail(authData.user.email)
+          setUserRole(authData.user.role)
+          
+          // Fetch their recent bookings
+          fetch(`/api/bookings?email=${authData.user.email}`)
+            .then(r => r.json())
+            .then(bookings => {
+              if (bookings && bookings.length > 0) {
+                // Sort by most recent
+                bookings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                const last = bookings[0]
+                
+                setRequesterName(last.requesterName || '')
+                setRequesterPhone(last.requesterPhone || '')
+                setRelation(last.relationToPatient || 'Self')
+                
+                setPatientName(last.patientName || '')
+                setPatientAge(last.patientAge?.toString() || '')
+                setPatientGender(last.patientGender || '')
+                setPatientAddress(last.patientAddress || '')
+                setPatientLocation(last.patientLocation || LOCATIONS[0])
+                setPatientContact(last.patientContact || '')
+                setEmergencyContact(last.emergencyContact || '')
+                setEmergencyRelation(last.emergencyRelation || '')
+              }
+            })
+        } else {
+          setIsLoggedIn(false)
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        setIsLoggedIn(false)
+      })
+      .finally(() => setAuthLoading(false))
+      .catch(console.error)
   }, [id])
 
   // Auto-fill patient name if self
@@ -201,7 +247,7 @@ export default function NurseProfilePage() {
             <div className="flex flex-col sm:flex-row gap-6 items-start">
               <div className="relative w-28 h-28 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-400/20 to-sapphire-400/20 flex-shrink-0 border-2 border-white/10 shadow-glass-lg">
                 {nurse.photo ? (
-                  <Image src={nurse.photo} alt={nurse.name} fill className="object-cover" unoptimized />
+                  <Image src={nurse.photo} alt={nurse.name} fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center">
                     <span className="text-4xl font-extrabold text-white">{nurse.name.charAt(0)}</span>
@@ -277,14 +323,18 @@ export default function NurseProfilePage() {
                   <h3 className="font-bold text-navy-800 mb-3 flex items-center gap-2 text-sm"><Award size={15} className="text-emerald-500" /> Qualifications</h3>
                   <p className="text-sm text-gray-600">{nurse.qualifications}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-5">
-                  <h3 className="font-bold text-navy-800 mb-3 flex items-center gap-2 text-sm"><Mail size={15} className="text-emerald-500" /> Contact</h3>
-                  <p className="text-sm text-gray-600">{nurse.email}</p>
-                </div>
-                <div className="bg-gray-50 rounded-xl p-5">
-                  <h3 className="font-bold text-navy-800 mb-3 flex items-center gap-2 text-sm"><Phone size={15} className="text-emerald-500" /> Phone</h3>
-                  <p className="text-sm text-gray-600">{nurse.phone}</p>
-                </div>
+                {userRole === 'admin' && (
+                  <>
+                    <div className="bg-gray-50 rounded-xl p-5">
+                      <h3 className="font-bold text-navy-800 mb-3 flex items-center gap-2 text-sm"><Mail size={15} className="text-emerald-500" /> Contact</h3>
+                      <p className="text-sm text-gray-600">{nurse.email}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-5">
+                      <h3 className="font-bold text-navy-800 mb-3 flex items-center gap-2 text-sm"><Phone size={15} className="text-emerald-500" /> Phone</h3>
+                      <p className="text-sm text-gray-600">{nurse.phone}</p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -305,6 +355,29 @@ export default function NurseProfilePage() {
                       <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
                       This is a non-emergency home care service. For emergencies, contact local emergency services immediately.
                     </p>
+                  </div>
+                </div>
+              ) : authLoading ? (
+                <div className="text-center py-16 px-8">
+                  <div className="w-8 h-8 border-2 border-emerald-200 border-t-emerald-500 rounded-full animate-spin mx-auto mb-4" />
+                  <p className="text-gray-400 font-medium">Checking authentication...</p>
+                </div>
+              ) : !isLoggedIn ? (
+                <div className="text-center py-16 px-8">
+                  <div className="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-sapphire-50 to-sapphire-100 flex items-center justify-center shadow-sm">
+                    <Lock size={40} className="text-sapphire-600" />
+                  </div>
+                  <h2 className="text-xl font-extrabold text-navy-900">Sign in to Schedule Care</h2>
+                  <p className="text-gray-500 mt-3 max-w-md mx-auto mb-6">
+                    You must be signed in to an account to request nursing care. This helps us ensure the safety and reliability of our services.
+                  </p>
+                  <div className="flex items-center justify-center gap-4">
+                    <Link href="/login" className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-medical transition-all">
+                      Log In
+                    </Link>
+                    <Link href="/signup" className="px-6 py-3 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold rounded-xl transition-all">
+                      Sign Up
+                    </Link>
                   </div>
                 </div>
               ) : (
@@ -404,9 +477,10 @@ export default function NurseProfilePage() {
                         </div>
                         <div>
                           <label className="label flex items-center gap-1.5"><MapPin size={14} className="text-emerald-500" /> Location (Area) *</label>
-                          <select value={patientLocation} onChange={e => setPatientLocation(e.target.value)} className="input" required>
-                            {LOCATIONS.map(l => <option key={l}>{l}</option>)}
-                          </select>
+                          <input list="patient-locations-list" value={patientLocation} onChange={e => setPatientLocation(e.target.value)} className="input" placeholder="Enter or select area" required />
+                          <datalist id="patient-locations-list">
+                            {LOCATIONS.map(l => <option key={l} value={l} />)}
+                          </datalist>
                         </div>
                         <div>
                           <label className="label">Patient Contact Number *</label>

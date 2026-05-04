@@ -4,6 +4,11 @@ import { getAllNurses } from '@/lib/store'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const nurses = await getAllNurses()
-  return NextResponse.json(nurses)
+  try {
+    const nurses = await getAllNurses()
+    return NextResponse.json(nurses)
+  } catch (error) {
+    console.error('Failed to get nurses:', error)
+    return NextResponse.json([], { status: 500 })
+  }
 }

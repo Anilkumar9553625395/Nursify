@@ -36,7 +36,7 @@ export default function SignupPage() {
         if (role === 'nurse') {
           router.push('/register') // Continue to nurse registration form
         } else {
-          router.push('/register-patient') // Continue to patient registration
+          router.push('/find-nurses') // Patient onboarding is now handled during scheduling
         }
       } else {
         setError(data.message || 'Signup failed')
