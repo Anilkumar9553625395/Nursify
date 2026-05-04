@@ -135,6 +135,26 @@ export default async function MyDashboardPage() {
                   </div>
                 </div>
 
+                {/* Diagnosis & Clinical Summary */}
+                {(b.diagnosis || b.clinicalNotes) && (
+                  <div className="mt-4 p-4 bg-emerald-50/30 rounded-2xl border border-emerald-100/50">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Stethoscope size={14} className="text-emerald-500" />
+                      <span className="text-xs font-bold text-navy-900 uppercase tracking-wider">Condition Details</span>
+                    </div>
+                    {b.diagnosis && (
+                      <p className="text-sm font-bold text-navy-900 mb-1">
+                        Diagnosis: <span className="text-emerald-700">{b.diagnosis}</span>
+                      </p>
+                    )}
+                    {b.clinicalNotes && (
+                      <p className="text-xs text-gray-600 italic leading-relaxed">
+                        &quot;{b.clinicalNotes}&quot;
+                      </p>
+                    )}
+                  </div>
+                )}
+
                 {/* Services */}
                 {b.servicesNeeded && b.servicesNeeded.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">

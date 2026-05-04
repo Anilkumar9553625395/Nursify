@@ -24,6 +24,8 @@ interface Booking {
   patientGender: string
   patientLocation: string
   diagnosis: string
+  clinicalNotes: string
+  treatmentPlan: string
   servicesNeeded: string[]
   bookingType: string
   hours?: number
@@ -192,6 +194,23 @@ export default function AdminPatientDetailPage() {
                     ₹{b.totalCost.toLocaleString()}
                   </div>
                 </div>
+
+                {/* Clinical History Snippet */}
+                {(b.diagnosis || b.clinicalNotes) && (
+                  <div className="mt-3 p-3 bg-amber-50/50 border border-amber-100 rounded-xl">
+                    {b.diagnosis && (
+                      <p className="text-xs font-bold text-navy-900 flex items-center gap-2 mb-1">
+                        <Stethoscope size={12} className="text-emerald-500" />
+                        Condition: {b.diagnosis}
+                      </p>
+                    )}
+                    {b.clinicalNotes && (
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        <span className="font-semibold">Summary:</span> {b.clinicalNotes}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {b.servicesNeeded?.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
