@@ -134,6 +134,13 @@ export default function NurseProfilePage() {
                 setPatientContact(prev => prev || last.patientContact || '')
                 setEmergencyContact(prev => prev || last.emergencyContact || '')
                 setEmergencyRelation(prev => prev || last.emergencyRelation || '')
+                
+                // Clinical details - This was missing!
+                setDiagnosis(last.diagnosis || '')
+                setClinicalNotes(last.clinicalNotes || '')
+                setRecentAdmissions(last.recentAdmissions || false)
+                setTreatmentPlan(last.treatmentPlan || '')
+                setServicesNeeded(last.servicesNeeded || [])
               }
             })
         } else {
@@ -440,6 +447,42 @@ export default function NurseProfilePage() {
                           <User size={18} className="text-emerald-500" /> Your Details
                         </h2>
                         <p className="text-sm text-gray-500">Who is scheduling this care? For you or your loved ones.</p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex-1 flex items-center gap-2">
+                          <CheckCircle size={15} className="text-emerald-500 flex-shrink-0" />
+                          <p className="text-[11px] text-emerald-700 leading-tight">
+                            We've pre-filled your last used care details to save you time!
+                          </p>
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            // Clear EVERYTHING for a fresh start
+                            setRequesterName('')
+                            setRequesterPhone('')
+                            setRelation('Self')
+                            setPatientName('')
+                            setPatientAge('')
+                            setPatientGender('')
+                            setPatientAddress('')
+                            setPatientLocation(LOCATIONS[0])
+                            setPatientContact('')
+                            setEmergencyContact('')
+                            setEmergencyRelation('')
+                            setDiagnosis('')
+                            setClinicalNotes('')
+                            setRecentAdmissions(false)
+                            setTreatmentPlan('')
+                            setServicesNeeded([])
+                            setStartDate('')
+                            setNotes('')
+                          }}
+                          className="bg-white border border-gray-200 hover:border-red-200 hover:bg-red-50 text-gray-500 hover:text-red-600 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                        >
+                          <Activity size={14} /> Clear All & Start Fresh
+                        </button>
                       </div>
 
                       {(requesterName || requesterPhone) && (
