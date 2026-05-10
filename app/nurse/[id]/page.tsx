@@ -10,7 +10,8 @@ import {
   Star, Clock, User, Globe, Award, ChevronLeft,
   Phone, Mail, IndianRupee, Calendar, CheckCircle, Send,
   Shield, MapPin, Heart, Activity, AlertTriangle,
-  FileText, Stethoscope, ClipboardList, UserCheck, Lock
+  FileText, Stethoscope, ClipboardList, UserCheck, Lock,
+  Loader2, Plus
 } from 'lucide-react'
 import type { Nurse } from '@/lib/store'
 import { SERVICES_NEEDED, RELATIONS, LOCATIONS } from '@/lib/constants'
@@ -69,14 +70,25 @@ export default function NurseProfilePage() {
   const [notes, setNotes] = useState('')
   const [documents, setDocuments] = useState('')
   const [emergencyDisclaimer, setEmergencyDisclaimer] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewFileName, setPreviewFileName] = useState('')
 
   const [submitting, setSubmitting] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [formError, setFormError] = useState('')
+  const [error, setError] = useState('')
   const [userRole, setUserRole] = useState('')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [authLoading, setAuthLoading] = useState(true)
   const [useDifferentDetails, setUseDifferentDetails] = useState(false)
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setSelectedFile(file)
+    setPreviewFileName(file.name)
+  }
 
   // Review form
   const [reviewName, setReviewName] = useState('')
@@ -193,46 +205,84 @@ export default function NurseProfilePage() {
     e.preventDefault()
     if (!emergencyDisclaimer) return
     setSubmitting(true)
-    const res = await fetch('/api/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        nurseId: nurse!.id,
-        nurseName: nurse!.name,
-        requesterName, requesterEmail, requesterPhone,
-        relationToPatient,
-        patientName,
-        patientAge: +patientAge,
-        patientGender,
-        patientAddress,
-        patientLocation,
-        patientContact,
-        emergencyContact, emergencyRelation,
-        diagnosis, clinicalNotes,
-        recentAdmissions, treatmentPlan,
-        servicesNeeded,
-        canMakeDecisions, understandsLimitations,
-        consentSignedBy: canMakeDecisions ? 'patient' : 'relative',
-        relativeRelation: !canMakeDecisions ? relativeRelation : undefined,
-        relativeAadhar: !canMakeDecisions ? relativeAadhar : undefined,
-        noConsentReason: !canMakeDecisions ? noConsentReason : undefined,
-        bookingType: bookType,
-        hours: bookType === 'hourly' ? hours : undefined,
-        days: bookType === 'daily' ? days : undefined,
-        startDate,
-        totalCost: cost,
-        notes,
-        documents,
-      }),
-    })
-    
-    if (res.ok) {
-      setSuccess(true)
-      setFormError('')
-      // Don't auto-reset everything yet, let the user see success message
-    } else {
-      const data = await res.json()
-      setFormError(data.error || 'An error occurred while submitting.')
+    setFormError('')
+
+    let finalDocUrl = documents
+
+    // Upload file if selected
+    if (selectedFile) {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      try {
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData })
+        const uploadData = await uploadRes.json()
+        if (uploadData.success || uploadData.url) {
+          finalDocUrl = uploadData.url || uploadData.path
+        } else {
+          setFormError('Report upload failed: ' + (uploadData.error || 'Unknown error'))
+          setSubmitting(false)
+          setUploading(false)
+          return
+        }
+      } catch (err) {
+        setFormError('Report upload network error')
+        setSubmitting(false)
+        setUploading(false)
+        return
+      }
+      setUploading(false)
+    }
+
+    if (!nurse) {
+      setFormError('Nurse data not found.')
+      setSubmitting(false)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nurseId: nurse.id,
+          nurseName: nurse.name,
+          requesterName, requesterEmail, requesterPhone,
+          relationToPatient,
+          patientName,
+          patientAge: +patientAge,
+          patientGender,
+          patientAddress,
+          patientLocation,
+          patientContact,
+          emergencyContact, emergencyRelation,
+          diagnosis, clinicalNotes,
+          recentAdmissions, treatmentPlan,
+          servicesNeeded,
+          canMakeDecisions, understandsLimitations,
+          consentSignedBy: canMakeDecisions ? 'patient' : 'relative',
+          relativeRelation: !canMakeDecisions ? relativeRelation : undefined,
+          relativeAadhar: !canMakeDecisions ? relativeAadhar : undefined,
+          noConsentReason: !canMakeDecisions ? noConsentReason : undefined,
+          bookingType: bookType,
+          hours: bookType === 'hourly' ? hours : undefined,
+          days: bookType === 'daily' ? days : undefined,
+          startDate,
+          totalCost: cost,
+          notes,
+          documents: finalDocUrl,
+        }),
+      })
+      
+      if (res.ok) {
+        setSuccess(true)
+        setFormError('')
+      } else {
+        const data = await res.json()
+        setFormError(data.error || 'An error occurred while submitting.')
+      }
+    } catch (err) {
+      setFormError('Submission network error')
     }
     setSubmitting(false)
   }
@@ -664,14 +714,42 @@ export default function NurseProfilePage() {
                           <FileText size={16} className="text-emerald-500" />
                           Medical Reports / Attachments (Optional)
                         </label>
-                        <input 
-                          type="text" 
-                          value={documents} 
-                          onChange={e => setDocuments(e.target.value)} 
-                          className="input" 
-                          placeholder="Paste Google Drive / Dropbox link to reports..." 
-                        />
-                        <p className="text-[10px] text-emerald-600 mt-1.5 font-medium">
+                        <div className="mt-2 flex items-center gap-4">
+                          <div className={`flex-1 border-2 border-dashed rounded-xl p-4 text-center transition-all ${
+                            uploading ? 'bg-emerald-50 border-emerald-300' : 
+                            documents ? 'bg-emerald-50/30 border-emerald-200' : 
+                            'border-gray-200 hover:border-emerald-200'
+                          }`}>
+                            <input 
+                              type="file" 
+                              onChange={handleFileChange} 
+                              className="hidden" 
+                              id="report-upload" 
+                              disabled={submitting || uploading}
+                            />
+                            <label htmlFor="report-upload" className="cursor-pointer">
+                              {uploading ? (
+                                <div className="flex flex-col items-center gap-2">
+                                  <Loader2 className="text-emerald-500 animate-spin" size={24} />
+                                  <p className="text-xs text-emerald-600 font-bold uppercase tracking-widest">Uploading...</p>
+                                </div>
+                              ) : (selectedFile || documents) ? (
+                                <div className="flex flex-col items-center gap-2">
+                                  <CheckCircle className="text-emerald-500" size={24} />
+                                  <p className="text-xs text-emerald-600 font-bold uppercase tracking-widest">Report Attached!</p>
+                                  <p className="text-[10px] text-gray-400 truncate max-w-xs">{previewFileName || documents.split('/').pop()}</p>
+                                </div>
+                              ) : (
+                                <div className="flex flex-col items-center gap-2">
+                                  <Plus className="text-gray-300" size={24} />
+                                  <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Upload Medical Report</p>
+                                  <p className="text-[10px] text-gray-400">PDF, PNG, JPEG allowed</p>
+                                </div>
+                              )}
+                            </label>
+                          </div>
+                        </div>
+                        <p className="text-[10px] text-emerald-600 mt-2 font-medium">
                           Nurses will securely see these after your request is approved.
                         </p>
                       </div>
@@ -767,7 +845,7 @@ export default function NurseProfilePage() {
                               </h3>
                               <div className="bg-white border border-gray-200 rounded-lg p-4 text-xs text-gray-600 leading-relaxed max-h-40 overflow-y-auto mb-4">
                                 <p className="font-semibold text-navy-900 mb-2">Consent for Non-Emergency Home Care Services</p>
-                                <p>I, the patient, hereby consent to receive non-emergency home nursing care services provided through Nursify Healthcare. I understand that:</p>
+                                <p>I, the patient, hereby consent to receive non-emergency home nursing care services provided through miAROGYA Healthcare. I understand that:</p>
                                 <ul className="list-disc pl-4 mt-2 space-y-1">
                                   <li>This is a non-emergency home care service and does not replace hospital-level care.</li>
                                   <li>For medical emergencies, I should contact local emergency services (108/112) immediately.</li>
@@ -921,7 +999,7 @@ export default function NurseProfilePage() {
                           <input type="checkbox" checked={emergencyDisclaimer} onChange={e => setEmergencyDisclaimer(e.target.checked)}
                             className="mt-0.5 w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
                           <span className="text-sm text-red-800">
-                            <strong>⚠️ I understand:</strong> This is a <strong>non-emergency home care service</strong>. For medical emergencies, I will contact local emergency services (108/112) immediately. Nursify is not responsible for emergency medical situations.
+                            <strong>⚠️ I understand:</strong> This is a <strong>non-emergency home care service</strong>. For medical emergencies, I will contact local emergency services (108/112) immediately. miAROGYA is not responsible for emergency medical situations.
                           </span>
                         </label>
                       </div>

@@ -3,7 +3,7 @@ import './globals.css'
 import WhatsAppButton from '@/components/WhatsAppButton'
 
 export const metadata: Metadata = {
-  title: 'Nursify – Trusted Home Nursing Care in Hyderabad',
+  title: 'miAROGYA – Trusted Home Nursing Care in Hyderabad',
   description: 'Book verified, licensed nurses for personalized home healthcare. Professional nursing care by the hour or day with complete transparency and trust.',
   keywords: 'nursing care, home nurse, healthcare, medical care, Hyderabad, nurse booking',
 }

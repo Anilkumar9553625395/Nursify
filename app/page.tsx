@@ -192,7 +192,7 @@ export default function HomePage() {
       <section className="py-24 bg-medical-bg medical-pattern">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="section-label justify-center">Why Choose Nursify</span>
+            <span className="section-label justify-center">Why Choose miAROGYA</span>
             <h2 className="section-title mt-4">Healthcare You Can Trust</h2>
             <p className="section-subtitle mx-auto">Every nurse on our platform undergoes rigorous verification to ensure the highest quality of care for you and your loved ones.</p>
           </div>
@@ -238,12 +238,12 @@ export default function HomePage() {
           </div>
 
           <div>
-            <span className="section-label">About Nursify</span>
+            <span className="section-label">About miAROGYA</span>
             <h2 className="section-title mt-4">
               Compassionate Care,<br />Professional Expertise
             </h2>
             <p className="text-gray-500 mt-6 leading-relaxed mb-10">
-              Nursify brings together qualified, compassionate nurses for all your nursing and medical needs across Hyderabad. Every professional is verified through the Nursing Council — because your family deserves the best care.
+              miAROGYA brings together qualified, compassionate nurses for all your nursing and medical needs across Hyderabad. Every professional is verified through the Nursing Council — because your family deserves the best care.
             </p>
             
             <div className="space-y-5">
@@ -324,7 +324,7 @@ export default function HomePage() {
           </h2>
           
           <p className="mt-6 text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of families across Hyderabad who trust Nursify for professional, compassionate home healthcare. Schedule your first consultation today.
+            Join thousands of families across Hyderabad who trust miAROGYA for professional, compassionate home healthcare. Schedule your first consultation today.
           </p>
           
           <div className="mt-10 flex flex-wrap justify-center gap-4">

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { loginAdmin } from '@/lib/auth'
 
 const ADMIN_CREDENTIALS = {
-  email: 'admin@nursecare.com',
+  email: 'admin@miAROGYA.com',
   password: 'admin123',
 }
 

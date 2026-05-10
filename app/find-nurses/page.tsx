@@ -22,7 +22,9 @@ export default function FindNursesPage() {
   const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
-    fetch('/api/nurses').then(r => r.json()).then(setNurses)
+    fetch('/api/nurses').then(r => r.json()).then(data => {
+      setNurses(data.nurses || [])
+    })
   }, [])
 
   const filtered = nurses

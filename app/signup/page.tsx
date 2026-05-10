@@ -58,7 +58,7 @@ export default function SignupPage() {
               <UserPlus className="text-blue-600" size={32} />
             </div>
             <h1 className="text-3xl font-extrabold text-navy-900 tracking-tight">Create Account</h1>
-            <p className="text-gray-500 mt-2">Join Nursify and get the care you deserve</p>
+            <p className="text-gray-500 mt-2">Join miAROGYA and get the care you deserve</p>
           </div>
 
           <div className="card p-8 shadow-glass transition-all duration-300">

@@ -15,10 +15,10 @@ export async function sendResetEmail(to: string, resetToken: string) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
-    subject: 'Nursify - Password Reset Request',
+    subject: 'miAROGYA - Password Reset Request',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-        <h2 style="color: #065f46; text-align: center;">Nursify Password Reset</h2>
+        <h2 style="color: #065f46; text-align: center;">miAROGYA Password Reset</h2>
         <p style="color: #334155; font-size: 16px;">Hello,</p>
         <p style="color: #334155; font-size: 16px;">We received a request to reset your password. Click the button below to choose a new password. This link will expire in 1 hour.</p>
         <div style="text-align: center; margin: 30px 0;">
@@ -26,7 +26,7 @@ export async function sendResetEmail(to: string, resetToken: string) {
         </div>
         <p style="color: #64748b; font-size: 14px;">If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-        <p style="color: #94a3b8; font-size: 12px; text-align: center;">Nursify Care Team</p>
+        <p style="color: #94a3b8; font-size: 12px; text-align: center;">miAROGYA Care Team</p>
       </div>
     `,
   };
@@ -46,7 +46,7 @@ export async function sendBookingConfirmation(to: string, bookingData: any) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
-    subject: `Nursify - Care Request Confirmed! (#${bookingData.id.slice(-6)})`,
+    subject: `miAROGYA - Care Request Confirmed! (#${bookingData.id.slice(-6)})`,
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
         <div style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 40px 20px; text-align: center;">
@@ -90,7 +90,7 @@ export async function sendBookingConfirmation(to: string, bookingData: any) {
         </div>
 
         <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="color: #94a3b8; font-size: 12px; margin: 0;">Nursify Care - Premium Nursing at Home</p>
+          <p style="color: #94a3b8; font-size: 12px; margin: 0;">miAROGYA Care - Premium Nursing at Home</p>
           <p style="color: #94a3b8; font-size: 11px; margin-top: 5px;">This is an automated message, please do not reply.</p>
         </div>
       </div>
@@ -112,7 +112,7 @@ export async function sendNurseBookingNotification(to: string, bookingData: any)
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
-    subject: `Nursify - New Care Request! (#${bookingData.id.slice(-6)})`,
+    subject: `miAROGYA - New Care Request! (#${bookingData.id.slice(-6)})`,
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
         <div style="background: #0f172a; padding: 40px 20px; text-align: center;">
@@ -162,7 +162,7 @@ export async function sendNurseStatusUpdate(to: string, nurseData: any) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
-    subject: `Nursify - Application Status: ${isApproved ? 'Approved!' : 'Update Required'}`,
+    subject: `miAROGYA - Application Status: ${isApproved ? 'Approved!' : 'Update Required'}`,
     html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; background-color: #ffffff;">
         <div style="background: ${isApproved ? '#10b981' : '#f59e0b'}; padding: 40px 20px; text-align: center;">
@@ -195,7 +195,7 @@ export async function sendNurseStatusUpdate(to: string, nurseData: any) {
         </div>
 
         <div style="background-color: #f1f5f9; padding: 20px; text-align: center; border-top: 1px solid #e2e8f0;">
-          <p style="color: #94a3b8; font-size: 12px; margin: 0;">Nursify Vetting Team</p>
+          <p style="color: #94a3b8; font-size: 12px; margin: 0;">miAROGYA Vetting Team</p>
         </div>
       </div>
     `,

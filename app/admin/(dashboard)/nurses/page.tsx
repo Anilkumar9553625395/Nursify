@@ -21,6 +21,9 @@ const STATUS_BADGE: Record<string, string> = {
 
 export default function AdminNursesPage() {
   const [nurses, setNurses]   = useState<Nurse[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [page, setPage]       = useState(1)
+  const [pageSize]            = useState(50)
   const [tab, setTab]         = useState<NurseStatus | 'all'>('all')
   const [search, setSearch]   = useState('')
   const [comments, setComments] = useState<Record<string, string>>({})
@@ -28,14 +31,16 @@ export default function AdminNursesPage() {
   const [loading, setLoading]   = useState(true)
 
   useEffect(() => {
-    fetch('/api/admin/nurses')
+    setLoading(true)
+    fetch(`/api/admin/nurses?page=${page}&limit=${pageSize}`, { cache: 'no-store' })
       .then(r => r.json())
       .then(data => { 
-        setNurses(Array.isArray(data) ? data : [])
+        const nursesList = data.nurses || []
+        setNurses(nursesList)
+        setTotalCount(data.count || 0)
+        
         const initialComments: Record<string, string> = {}
-        if (Array.isArray(data)) {
-          data.forEach((n: Nurse) => { initialComments[n.id] = n.adminComments || '' })
-        }
+        nursesList.forEach((n: Nurse) => { initialComments[n.id] = n.adminComments || '' })
         setComments(initialComments)
         setLoading(false) 
       })
@@ -43,7 +48,7 @@ export default function AdminNursesPage() {
         console.error(err)
         setLoading(false)
       })
-  }, [])
+  }, [page, pageSize])
 
   async function updateStatus(id: string, status: NurseStatus) {
     setUpdating(id)
@@ -230,6 +235,29 @@ export default function AdminNursesPage() {
               </div>
             </div>
           ))}
+
+          {/* Pagination Controls */}
+          {totalCount > pageSize && (
+            <div className="flex items-center justify-center gap-4 py-8 border-t border-gray-100 mt-8">
+              <button 
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="btn-secondary py-2 px-4 disabled:opacity-30"
+              >
+                Previous
+              </button>
+              <span className="text-sm font-bold text-navy-900">
+                Page {page} of {Math.ceil(totalCount / pageSize)}
+              </span>
+              <button 
+                onClick={() => setPage(p => p + 1)}
+                disabled={page >= Math.ceil(totalCount / pageSize)}
+                className="btn-secondary py-2 px-4 disabled:opacity-30"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
                   type="email"
                   autoComplete="email"
                   required
-                  placeholder="admin@nursecare.com"
+                  placeholder="admin@miAROGYA.com"
                   className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all placeholder:text-gray-400"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -119,7 +119,7 @@ export default function AdminLoginPage() {
 
           <div className="mt-8 text-center">
             <p className="text-xs text-gray-400">
-              Only authorized NurseCare personnel should attempt access.
+              Only authorized miAROGYA personnel should attempt access.
               <br />
               All activity is monitored and logged.
             </p>

@@ -69,7 +69,7 @@ export default function Navbar() {
               <Activity size={10} className="absolute -top-0.5 -right-0.5 text-emerald-400 animate-pulse-soft" />
             </div>
             <div className="flex flex-col">
-              <span className="font-extrabold text-lg text-navy-900 tracking-tight leading-none">Nursify</span>
+              <span className="font-extrabold text-lg text-navy-900 tracking-tight leading-none">miAROGYA</span>
               <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-widest leading-none mt-0.5">For you & your loved ones</span>
             </div>
           </Link>

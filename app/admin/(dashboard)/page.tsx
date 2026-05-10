@@ -4,17 +4,18 @@ import Link from 'next/link'
 import { Users, Calendar, CheckCircle, Clock, TrendingUp, AlertCircle, Activity, Shield, UserRound } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function AdminDashboard() {
-  const [nurses, bookings, { count: patientCount }] = await Promise.all([
-    getAllNurses(),
+  const [{ nurses, count: totalNursesCount }, bookings, { count: patientCount }] = await Promise.all([
+    getAllNurses(1, 1000), // Get a large batch for stats
     getAllBookings(),
     supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'patient')
       .then(r => ({ count: r.count ?? 0 })),
   ])
 
   const stats = {
-    totalNurses:    nurses.length,
+    totalNurses:    totalNursesCount,
     approvedNurses: nurses.filter(n => n.status === 'approved').length,
     pendingNurses:  nurses.filter(n => n.status === 'pending').length,
     totalBookings:  bookings.length,

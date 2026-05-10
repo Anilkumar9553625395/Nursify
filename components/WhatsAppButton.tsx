@@ -18,7 +18,7 @@ export default function WhatsAppButton() {
                 <MessageCircle size={16} className="text-white" fill="white" />
               </div>
               <div>
-                <p className="font-bold text-navy-900 text-sm">Nursify Support</p>
+                <p className="font-bold text-navy-900 text-sm">miAROGYA Support</p>
                 <p className="text-[10px] text-green-600 font-medium">● Online now</p>
               </div>
             </div>
@@ -31,7 +31,7 @@ export default function WhatsAppButton() {
           </p>
           <div className="space-y-2">
             <a
-              href={`${WHATSAPP_LINK}?text=${encodeURIComponent("Hi Nursify, I need help scheduling nursing care for my family.")}`}
+              href={`${WHATSAPP_LINK}?text=${encodeURIComponent("Hi miAROGYA, I need help scheduling nursing care for my family.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white text-sm font-semibold transition-all justify-center"
@@ -39,7 +39,7 @@ export default function WhatsAppButton() {
               <MessageCircle size={16} fill="white" /> Chat as Patient
             </a>
             <a
-              href={`${WHATSAPP_LINK}?text=${encodeURIComponent("Hi Nursify, I am a nurse and I'd like to register on your platform.")}`}
+              href={`${WHATSAPP_LINK}?text=${encodeURIComponent("Hi miAROGYA, I am a nurse and I'd like to register on your platform.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 w-full px-4 py-2.5 rounded-xl bg-white border-2 border-[#25D366] text-[#25D366] hover:bg-green-50 text-sm font-semibold transition-all justify-center"

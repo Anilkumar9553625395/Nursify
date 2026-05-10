@@ -3,9 +3,13 @@ import { getApprovedNurses, addNurse } from '@/lib/store'
 
 export const revalidate = 60 // Cache response for 60 seconds
 
-export async function GET() {
-  const nurses = await getApprovedNurses()
-  return NextResponse.json(nurses)
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '12')
+
+  const result = await getApprovedNurses(page, limit)
+  return NextResponse.json(result)
 }
 
 export async function POST(req: Request) {

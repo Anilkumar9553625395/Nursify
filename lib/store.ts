@@ -88,25 +88,39 @@ export type { Booking as CareRequest }
 
 // ── Nurse helpers ─────────────────────────────────────────────────────────────
 
-export async function getAllNurses(): Promise<Nurse[]> {
-  const { data, error } = await supabase
+export async function getAllNurses(page: number = 1, pageSize: number = 100): Promise<{ nurses: Nurse[], count: number }> {
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+
+  const { data, error, count } = await supabase
     .from('nurses')
-    .select('*')
+    .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .range(from, to)
 
   if (error) throw error
-  return (data || []).map(mapNurse)
+  return {
+    nurses: (data || []).map(mapNurse),
+    count: count || 0
+  }
 }
 
-export async function getApprovedNurses(): Promise<Nurse[]> {
-  const { data, error } = await supabase
+export async function getApprovedNurses(page: number = 1, pageSize: number = 12): Promise<{ nurses: Nurse[], count: number }> {
+  const from = (page - 1) * pageSize
+  const to = from + pageSize - 1
+
+  const { data, error, count } = await supabase
     .from('nurses')
-    .select('*')
+    .select('*', { count: 'exact' })
     .eq('status', 'approved')
     .order('rating', { ascending: false })
+    .range(from, to)
 
   if (error) throw error
-  return (data || []).map(mapNurse)
+  return {
+    nurses: (data || []).map(mapNurse),
+    count: count || 0
+  }
 }
 
 export async function getNurseById(id: string): Promise<Nurse | null> {

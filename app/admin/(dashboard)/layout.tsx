@@ -5,7 +5,7 @@ import { Heart, LayoutDashboard, Users, Calendar, UserCheck, Activity, Shield, U
 import { isAdminAuthenticated } from '@/lib/auth'
 import LogoutButton from '@/components/LogoutButton'
 
-export const metadata: Metadata = { title: 'Nursify Admin Dashboard' }
+export const metadata: Metadata = { title: 'miAROGYA Admin Dashboard' }
 
 const navItems = [
   { href: '/admin',           icon: LayoutDashboard, label: 'Dashboard' },
@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-medical group-hover:scale-105 transition-all">
               <Heart size={18} fill="white" className="text-white" />
             </span>
-            <span className="tracking-tight">Nursify</span>
+            <span className="tracking-tight">miAROGYA</span>
           </Link>
           <div className="flex items-center gap-2 mt-3 pl-1">
             <Shield size={12} className="text-emerald-400" />

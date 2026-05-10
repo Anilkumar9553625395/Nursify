@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken'
 const ADMIN_SESSION_COOKIE = 'admin_session'
 const ADMIN_SESSION_VALUE = 'authenticated_admin_session_val_123'
 const USER_SESSION_COOKIE = 'user_session'
-const JWT_SECRET = process.env.JWT_SECRET || 'nursify-secret-key-456'
+const JWT_SECRET = process.env.JWT_SECRET || 'miAROGYA-secret-key-456'
 
 export interface UserSession {
   userId: string

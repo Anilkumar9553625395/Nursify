@@ -23,50 +23,40 @@ export default function Footer() {
                 <Heart size={18} className="text-white" fill="white" />
               </span>
               <div>
-                <span className="font-extrabold text-lg text-white tracking-tight block leading-none">Nursify</span>
-                <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-widest leading-none">Healthcare</span>
+                <span className="font-extrabold text-lg text-white tracking-tight block leading-none">miAROGYA</span>
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.2em] mt-1">Care & Wellness</span>
               </div>
             </Link>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Professional home nursing care — for you and your loved ones. Verified nurses, transparent pricing in Hyderabad (All India Coming Soon).
+            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+              Empowering families with qualified, compassionate nursing care at the comfort of their homes.
             </p>
-            <div className="flex items-center gap-2 mt-4">
-              <Shield size={14} className="text-emerald-400" />
-              <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">Verified & Licensed</span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 group">
+                <div className="w-8 h-8 rounded-lg bg-navy-800 flex items-center justify-center group-hover:bg-emerald-500 transition-colors">
+                  <Mail size={14} className="text-emerald-500 group-hover:text-white" />
+                </div>
+                <p className="text-sm text-gray-400">support@miAROGYA.in</p>
+              </div>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Platform */}
           <div>
-            <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-5">Quick Links</h4>
+            <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-5">Platform</h4>
             <ul className="space-y-3">
-              {[
-                { href: '/find-nurses', label: 'Find Nurses' },
-                { href: '/register',    label: 'Join as Nurse' },
-                { href: '/bookings',    label: 'My Bookings' },
-              ].map(({ href, label }) => (
-                <li key={href}>
-                  <Link href={href} className="text-sm text-gray-400 hover:text-emerald-400 transition-colors duration-300 flex items-center gap-2 group">
-                    <span className="w-1 h-1 rounded-full bg-emerald-600 group-hover:bg-emerald-400 transition-colors" />
-                    {label}
-                  </Link>
-                </li>
-              ))}
+              <li><Link href="/nurses" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Find Nurses</Link></li>
+              <li><Link href="/register" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Join as Nurse</Link></li>
+              <li><Link href="/login" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Client Login</Link></li>
             </ul>
           </div>
 
-          {/* Services */}
+          {/* Support */}
           <div>
-            <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-5">Services</h4>
+            <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-5">Support</h4>
             <ul className="space-y-3">
-              {['Home Care', 'Senior Care', 'Post-Surgery Care', 'Pediatric Care', 'ICU at Home'].map(s => (
-                <li key={s}>
-                  <span className="text-sm text-gray-400 flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-emerald-600" />
-                    {s}
-                  </span>
-                </li>
-              ))}
+              <li><Link href="#" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Help Center</Link></li>
+              <li><Link href="#" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Terms of Service</Link></li>
+              <li><Link href="#" className="text-sm text-gray-400 hover:text-emerald-400 transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
 
@@ -79,17 +69,13 @@ export default function Footer() {
                   <Phone size={16} className="text-emerald-400 mt-0.5 flex-shrink-0 group-hover:text-emerald-300 transition-colors" />
                   <div>
                     <p className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">+91 95536 25395</p>
-                    <p className="text-xs text-gray-500">24/7 Emergency Line</p>
+                    <p className="text-xs text-gray-500">24/7 Support Line</p>
                   </div>
                 </a>
               </li>
               <li className="flex items-start gap-3">
-                <Mail size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-gray-400">support@nursify.in</p>
-              </li>
-              <li className="flex items-start gap-3">
                 <MapPin size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-gray-400">Serving Hyderabad (All India Coming Soon)</p>
+                <p className="text-sm text-gray-400">Serving Hyderabad</p>
               </li>
             </ul>
           </div>
@@ -98,7 +84,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-14 pt-8 border-t border-navy-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500">
-            © {new Date().getFullYear()} Nursify Healthcare. All rights reserved. Quality healthcare at your doorstep.
+            © {new Date().getFullYear()} miAROGYA Healthcare. All rights reserved.
           </p>
           <div className="flex items-center gap-2">
             <Activity size={14} className="text-emerald-500" />

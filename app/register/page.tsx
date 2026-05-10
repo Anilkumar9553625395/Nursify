@@ -42,11 +42,9 @@ export default function RegisterPage() {
   const [termsAccepted, setTermsAccepted] = useState(false)
 
   // Photo upload state
-  const [uploading, setUploading] = useState(false)
-  const [uploadError, setUploadError] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
-  const [useUrl, setUseUrl] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -62,49 +60,11 @@ export default function RegisterPage() {
       })
   }, [])
 
-  async function handlePhotoUpload(file: File) {
-    setUploadError('')
-    setUploading(true)
-
-    // Show local preview immediately
-    const localPreview = URL.createObjectURL(file)
-    setPreviewUrl(localPreview)
-
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('name', name || 'Nurse')
-
-    try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      const data = await res.json()
-
-      if (res.ok && data.url) {
-        setPhoto(data.url)
-        setUploadError('')
-      } else if (data.fallbackUrl) {
-        // Storage not configured — use avatar fallback
-        setPhoto(data.fallbackUrl)
-        setUploadError('Storage not configured yet. Using generated avatar.')
-      } else {
-        setUploadError(data.error || 'Upload failed')
-        setPreviewUrl('')
-      }
-    } catch {
-      setUploadError('Network error. Please try again.')
-      setPreviewUrl('')
-    }
-    setUploading(false)
-  }
-
-  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (file) handlePhotoUpload(file)
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    const file = e.dataTransfer.files?.[0]
-    if (file && file.type.startsWith('image/')) handlePhotoUpload(file)
+    if (!file) return
+    setSelectedFile(file)
+    setPreviewUrl(URL.createObjectURL(file))
   }
 
   function toggleSpec(s: string) {
@@ -121,8 +81,36 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (specs.length === 0) { setError('Please select at least one specialization.'); return }
+    if (!selectedFile && !photo) { setError('Please upload a profile photo.'); return }
     setError('')
     setSubmitting(true)
+
+    let finalPhotoUrl = photo
+
+    // Upload file if selected
+    if (selectedFile) {
+      setUploading(true)
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      try {
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData })
+        const uploadData = await uploadRes.json()
+        if (uploadData.success || uploadData.url) {
+          finalPhotoUrl = uploadData.url || uploadData.path
+        } else {
+          setError('Image upload failed: ' + (uploadData.error || 'Unknown error'))
+          setSubmitting(false)
+          setUploading(false)
+          return
+        }
+      } catch (err) {
+        setError('Image upload network error')
+        setSubmitting(false)
+        setUploading(false)
+        return
+      }
+      setUploading(false)
+    }
 
     if (!isLoggedIn && password) {
       const signupRes = await fetch('/api/auth/signup', {
@@ -142,7 +130,7 @@ export default function RegisterPage() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name, email, phone, photo,
+        name, email, phone, photo: finalPhotoUrl,
         experience: +experience,
         hourlyRate: +hourlyRate,
         dailyRate: +dailyRate,
@@ -236,87 +224,6 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="card p-8 space-y-6 shadow-glass">
             {/* Step 1 */}
             {step === 1 && <>
-              <div>
-                <label className="label">Profile Photo * <span className="text-red-500 text-xs">(mandatory)</span></label>
-
-                {/* Toggle between upload and URL */}
-                <div className="flex gap-2 mb-3">
-                  <button type="button" onClick={() => setUseUrl(false)}
-                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${!useUrl ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                      }`}>
-                    <Upload size={12} className="inline mr-1" /> Upload Photo
-                  </button>
-                  <button type="button" onClick={() => setUseUrl(true)}
-                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${useUrl ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                      }`}>
-                    Paste URL
-                  </button>
-                </div>
-
-                {!useUrl ? (
-                  <div className="flex gap-4 items-start">
-                    {/* Upload area */}
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      onDragOver={e => e.preventDefault()}
-                      onDrop={handleDrop}
-                      className={`flex-1 border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 ${uploading ? 'border-emerald-400 bg-emerald-50' :
-                          photo && !uploadError ? 'border-emerald-400 bg-emerald-50/50' :
-                            'border-gray-300 hover:border-emerald-400 hover:bg-emerald-50/30'
-                        }`}
-                    >
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                      />
-                      {uploading ? (
-                        <div className="flex flex-col items-center gap-2">
-                          <Loader2 size={28} className="text-emerald-500 animate-spin" />
-                          <p className="text-sm text-emerald-600 font-medium">Uploading...</p>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                            <Camera size={22} className="text-gray-400" />
-                          </div>
-                          <p className="text-sm font-semibold text-navy-900">Click to upload or drag & drop</p>
-                          <p className="text-xs text-gray-400">JPEG, PNG or WebP · Max 5MB</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Preview */}
-                    {(previewUrl || photo) && (
-                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-emerald-200 shadow-sm flex-shrink-0">
-                        <Image
-                          src={previewUrl || photo}
-                          alt="Preview"
-                          fill
-                          className="object-cover"
-                        />
-                        {photo && (
-                          <div className="absolute bottom-0 inset-x-0 bg-emerald-500 text-white text-[9px] font-bold text-center py-0.5">
-                            ✓ Uploaded
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  /* URL fallback */
-                  <input value={photo} onChange={e => setPhoto(e.target.value)} className="input" placeholder="https://…" />
-                )}
-
-                {uploadError && (
-                  <p className="text-xs text-amber-600 mt-2 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-100">{uploadError}</p>
-                )}
-                {!photo && !uploading && (
-                  <p className="text-xs text-gray-400 mt-2">A professional photo is required for your profile listing.</p>
-                )}
-              </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="label">Full Name *</label>
@@ -346,7 +253,6 @@ export default function RegisterPage() {
                   <datalist id="locations-list">
                     {LOCATIONS.map(l => <option key={l} value={l} />)}
                   </datalist>
-                  <p className="text-xs text-gray-400 mt-1.5">Select the primary area where you are available to provide care.</p>
                 </div>
                 <div className="sm:col-span-1">
                   <label className="label flex items-center gap-2"><Shield size={14} className="text-emerald-500" /> Nurse Council Reg. No. *</label>
@@ -356,11 +262,46 @@ export default function RegisterPage() {
                   <label className="label">Registration State *</label>
                   <input value={regState} onChange={e => setRegState(e.target.value)} className="input" placeholder="e.g. Maharashtra" required />
                 </div>
+                <div className="md:col-span-2">
+                  <label className="label">Profile Photo *</label>
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-20 h-20 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden shrink-0 group relative">
+                      {previewUrl || photo ? (
+                        <img src={previewUrl || photo} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <Camera className="text-gray-300" size={24} />
+                      )}
+                      {uploading && (
+                        <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                          <Loader2 className="text-emerald-500 animate-spin" size={20} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileChange} 
+                        className="hidden" 
+                        id="photo-upload" 
+                        disabled={submitting || uploading}
+                      />
+                      <label 
+                        htmlFor="photo-upload"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-navy-900 cursor-pointer hover:bg-gray-50 transition-all shadow-sm"
+                      >
+                        <Camera size={14} className="text-emerald-500" />
+                        {selectedFile ? 'Change Photo' : 'Upload Professional Photo'}
+                      </label>
+                      <p className="text-[10px] text-gray-400 mt-2">Clear, front-facing professional headshot recommended.</p>
+                    </div>
+                  </div>
+                </div>
               </div>
               {error && <p className="text-red-500 text-sm bg-red-50 px-4 py-2 rounded-xl border border-red-100">{error}</p>}
               <div className="flex justify-end pt-2">
                 <button type="button" onClick={() => {
-                  if (!name || !email || (!isLoggedIn && !password) || !phone || !experience || !regNumber || !regState || !photo) setError('Please fill in all required fields marked with *, including profile photo and password.')
+                  if (!name || !email || (!isLoggedIn && !password) || !phone || !experience || !regNumber || !regState || (!selectedFile && !photo)) setError('Please fill in all required fields marked with *, including profile photo and password.')
                   else { setError(''); setStep(2) }
                 }}
                   className="btn-primary">Next Step →</button>

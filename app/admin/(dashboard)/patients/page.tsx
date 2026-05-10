@@ -50,7 +50,7 @@ export default function AdminPatientsPage() {
             <Users size={24} className="text-emerald-500" /> Registered Patients
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
-            All patients who have signed up on Nursify.
+            All patients who have signed up on miAROGYA.
           </p>
         </div>
         <div className="bg-emerald-50 border border-emerald-100 px-4 py-2 rounded-full">
